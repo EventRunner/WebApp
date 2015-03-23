@@ -1,5 +1,5 @@
 # WebApp
-Web Interface for VENT
+Web interface for VENT
 
 PEOPLE
 
@@ -14,8 +14,6 @@ Flask, jQuery, Bootstrap, SQLite, SQLAlchemy (through flask-sqlalchemy), Alembic
 TOOLS
 
 bootsnipp.com
-
-http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
 
 SQLiteman
 
@@ -37,4 +35,3 @@ python manage.py db init - initializes app.db based on models.py (need to run an
 python manage.py db migrate - creates migration file after models.py has been modified
 
 python manage.py dp upgrade - applies most recent migration file
-

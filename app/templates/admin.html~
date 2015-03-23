@@ -1,0 +1,23 @@
+{% extends "navbar.html" %}
+{% block content %}
+     <h1>Update User Privileges</h1>
+     <div class="container">
+
+          <form class="form-group" method="POST">
+            <label for="permissions">New permissions: </label>
+			<p>Admin - a, EA - e, Recorder - r, Houseman - h</p>
+            <input name="permissions" id="permissions" class="form-control" placeholder='e.g. "e"' required>
+            <br>
+            <label>Select brothers to give permissions to: </label>
+            {{ brotherSelector("new-admins", brother_list) }}
+            <br><br>
+            <label>Select brothers to remove all permissions from: </label>
+            {{ brotherSelector("new-losers", brother_list) }}
+            <br><br>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Update privileges</button>
+          </form>
+
+        </div>
+{% endblock %}
+
+

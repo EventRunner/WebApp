@@ -1,0 +1,9 @@
+{% macro userSelector (id, users_list) -%}
+    <select data-placeholder="Select Users" class="chosen-select" multiple name={{id}} id={{id}}>
+        {% for user in users_list %}
+            <option value={{ user.id }}>{{ user.name }}</option>
+        {% endfor %}
+    </select>
+    <button type='button' class="select-all" target={{"#"+id}}>Select all</button>
+    <button type='button' class="deselect-all" target={{"#"+id}}>Deselect all</button>
+{% endmacro %}

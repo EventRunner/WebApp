@@ -1,0 +1,16 @@
+body {
+    padding: 60px;
+}
+
+.missed-worksession{
+    background-color: #FF3333;
+}
+.excused-worksession{
+    background-color: #99CCFF;
+}
+.attended-worksession{
+    background-color: #00FF00;
+}
+.brother-hero-worksession{
+    background-color: #CC9900;
+}

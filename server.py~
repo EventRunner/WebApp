@@ -1,0 +1,11 @@
+from app import app, models, db
+
+if len(models.Brother.query.all()) == 0:
+	print 'ayy'
+	with open('app/brother_names.txt', 'r') as f:
+		BROTHER_NAMES = f.read().split("\n")
+	for brother_name in BROTHER_NAMES:
+		db.session.add(models.Brother(brother_name))
+	db.session.commit()
+
+app.run(debug=True)

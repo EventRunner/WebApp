@@ -1,0 +1,8 @@
+{% extends "navbar.html" %}
+{% block content %}
+    <h1>Profile for {{ target.name }}</h1>
+    <hr>
+    <h3><u>Email:</u> {{ target.email }}</h3>
+    <h3><u><a href="/some-thing">Some Thing:</a></u> ${{ target.thing }}</h3>
+    <br>
+{% endblock %}
