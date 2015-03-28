@@ -38,6 +38,40 @@ class User(db.Model, UserMixin):
 		self.metadata_str = ""
 
 
+# Many to Many Relationship between events and users
+relationships  = db.Table('relations',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    is_private = db.Column(db.Boolean)
+    manager_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    tasks = db.relationship('Task', backref='event',
+                                lazy='dynamic')
+    # Define relationship for many to many table
+    users = db.relationship('Users', secondary=relationships,
+        backref=db.backref('events', lazy='dynamic'))
+
+
+
+
+
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(128))
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    users = db.relationship('User', lazy='dynamic')
+    description = db.Column(db.String(512))
+
+
+
 ##################################################
 # Helper functions
 ##################################################

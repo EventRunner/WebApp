@@ -36,5 +36,5 @@ python manage.py db init - initializes app.db based on models.py (need to run an
 
 python manage.py db migrate - creates migration file after models.py has been modified
 
-python manage.py dp upgrade - applies most recent migration file
+python manage.py db upgrade - applies most recent migration file
 
