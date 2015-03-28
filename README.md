@@ -3,7 +3,7 @@ Web Interface for VENT
 
 PEOPLE
 
-Jacob, Owen, Warfa, Jon (in order of impotence)
+Jon, Jacob, Owen, Warfa (in order of impotence)
 
 
 TECHNOLOGY

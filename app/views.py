@@ -1,10 +1,11 @@
-from flask import render_template, request, redirect, flash, url_for
+from flask import render_template, request, redirect, flash, url_for, Response, Flask
 from flask.ext.login import login_required, login_user, logout_user, current_user
 from simplecrypt import decrypt
 from datetime import datetime as dt
 from models import User, get_user
 from config import SECRET_KEY, CREATE_PIN
 from app import app, db
+import os, json
 
 #####################################
 # Regular pages
@@ -29,6 +30,56 @@ def profile_id(user_id):
 		flash("Invalid page.")
 		return redirect(url_for('index'))		
 	return render_template('profile.html', user=current_user, target=user)
+
+#####################################
+# public API 
+#####################################
+
+def generate_json_response(file, index):
+	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+	json_url = os.path.join(SITE_ROOT, "dummy_data", file)
+	data = json.load(open(json_url))[index]
+	resp = Response(response=json.dumps(data),
+		status=200, \
+		mimetype="application/json")
+	return resp
+
+@app.route('/event/<event_id>', methods=["GET", "PUT"])
+@login_required
+def event(event_id):
+	if request.method == "PUT":
+		# update event
+		pass
+
+	elif request.method == "GET":
+		# get info for event
+		resp = generate_json_response("events.json", int(event_id))
+		return (resp)
+		
+
+@app.route('/task/<task_id>', methods=["GET", "PUT"])
+@login_required
+def task(task_id):
+	if request.method == "PUT":
+		# update task
+		pass
+
+	elif request.method == "GET":
+		# get info for task
+		resp = generate_json_response("tasks.json", int(task_id))
+		return (resp)
+
+
+@app.route('/user/<user_id>', methods=["GET", "PUT"])
+@login_required
+def user(user_id):
+	if request.method == "PUT":
+		# update event
+		pass
+
+	elif request.method == "GET":
+		# get info for event
+		pass
 
 
 #####################################
