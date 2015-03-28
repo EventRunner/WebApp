@@ -25,21 +25,23 @@
     <title>VENT</title>
     {% endif %}
   </head>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div class="row">
-	  {% for message in messages %}
-	     <div class="col">
-            <div class="alert alert-info">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                    ×</button>
-                <p>{{ message }}</p>
-            </div>
+  <div id="alerts-area">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="row">
+      {% for message in messages %}
+         <div class="col">
+              <div class="alert alert-info">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                      ×</button>
+                  <p>{{ message }}</p>
+              </div>
+          </div>
+      {% endfor %}
         </div>
-	  {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
+      {% endif %}
+    {% endwith %}
+  </div>
 	
   {% block body %}{% endblock %}
 

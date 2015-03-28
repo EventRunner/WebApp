@@ -1,0 +1,69 @@
+[
+	{
+		"id" : 0,
+		"name" : "Remove Jacob's Dick",
+		"location" : "The Shed",
+		"event_id" : 0,
+		"user_list" : [0],
+		"start_time" : 1427904000,
+		"end_time" : 1427907600,
+		"description" : "You know what they say, 'use it or lose it'",
+		"status_code" : 0
+	},
+	{
+		"id" : 1,
+		"name" : "Dispose of Jacob's Dick",
+		"location" : "The Trash",
+		"event_id" : 0,
+		"user_list" : [0, 1],
+		"start_time" : 1427907600,
+		"end_time" : 1427911200,
+		"description" : "Trash should be fine.",
+		"status_code" : 0
+	},
+	{
+		"id" : 2,
+		"name" : "Append fleshlight to Jacob",
+		"location" : "The Shed",
+		"event_id" : 0,
+		"user_list" : [0, 1, 2],
+		"start_time" : 1427914800,
+		"end_time" : 1427918400,
+		"description" : "Don't buy an expensive one.",
+		"status_code" : 0
+	},
+
+	{
+		"id" : 3,
+		"name" : "Buy Birthday Cake",
+		"location" : "Geagle",
+		"event_id" : 1,
+		"user_list" : [0],
+		"start_time" : 1428163200,
+		"end_time" : 1428170400,
+		"description" : "He likes dick-shaped ones.",
+		"status_code" : 0
+	},
+	{
+		"id" : 4,
+		"name" : "Hire 'entertainment'",
+		"location" : "Strip Club",
+		"event_id" : 1,
+		"user_list" : [1, 2],
+		"start_time" : 1428163200,
+		"end_time" : 1428170400,
+		"description" : "Big & Black.",
+		"status_code" : 0
+	},
+	{
+		"id" : 5,
+		"name" : "Rave",
+		"location" : "Jacob's place",
+		"event_id" : 1,
+		"user_list" : [2, 3],
+		"start_time" : 1428249600,
+		"end_time" : 1428278400,
+		"description" : "Turn up.",
+		"status_code" : 0
+	}
+]
