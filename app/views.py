@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, flash, url_for, Response, 
 from flask.ext.login import login_required, login_user, logout_user, current_user
 from simplecrypt import decrypt
 from datetime import datetime as dt
-from models import User, get_user
+from models import User, get_user, Event, Task
 from config import SECRET_KEY, CREATE_PIN
 from app import app, db
 import os, json
@@ -35,27 +35,70 @@ def profile_id(user_id):
 # public API
 #####################################
 
-def generate_json_response(file, index):
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "dummy_data", file)
-    data = json.load(open(json_url))[index]
-    resp = Response(response=json.dumps(data),
-        status=200, \
-        mimetype="application/json")
-    return resp
+def json_out(s):
+    return Response(json.dumps(s), mimetype="application/json")
+
+@app.route('/debug/dummy', methods=["GET"])
+def dummy():
+    event = Event.query.first()
+    if not event:
+        event = Event(name="Key Signing Party", is_private=False,
+                      manager_id=current_user.id)
+        db.session.add(event)
+
+    users = User.query.all()
+    if len(users) < 5:
+        users = [User(name=u, password=u, email=u+"@example.com")
+                 for u in ["user%d" % n for n in xrange(5)]]
+        for u in users:
+            db.session.add(u)
+    else:
+        users = users[1:]  # the first user is logged in and not dummy
+
+    if len(event.volunteers) < 3:
+        event.volunteers = users[:3]
+
+    tasks = Task.query.all()
+    if len(tasks) < 3:
+        tasks = [Task(name=s, event_id=event.id, volunteers=[users[n]])
+                 for n, s in enumerate(["Comb Eckhardt's beard",
+                                        "Troll Kesden", "Surprise Cortina"])]
+        for t in tasks:
+            db.session.add(t)
+
+    db.session.commit()
+
+    return "Dummy data successfully created/verified"
+
+
+@app.route('/event', methods=["GET", "POST"])
+def event_list():
+    events = [{"id": e.id, "name": e.name}
+              for e in Event.query.order_by(Event.start_time.desc()).all()]
+    return json_out({"status_code": 0, "events": events})
 
 @app.route('/event/<event_id>', methods=["GET", "PUT"])
 @login_required
 def event(event_id):
-    if request.method == "PUT":
-        # update event
+    if request.method == "GET":
+        e = Event.query.filter_by(id=event_id).first()
+        if not e:
+            return json_out({"status_code": 2})  # event doesn't exist
+        result = {"status_code": 0,
+                  "id": e.id,
+                  "name": e.name,
+                  "start_time": e.start_time,
+                  "end_time": e.end_time,
+                  "is_private": e.is_private,
+                  "manager_id": e.manager_id,
+                  "task_list": map(lambda t: t.id, e.tasks),
+                  "user_list": map(lambda u: u.id, e.volunteers)
+                 }
+        return json_out(result)
+
+
+    elif request.method == "PUT":
         pass
-
-    elif request.method == "GET":
-        # get info for event
-        resp = generate_json_response("events.json", int(event_id))
-        return (resp)
-
 
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required

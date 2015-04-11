@@ -9,7 +9,13 @@ from app import db, login_manager
 # Tables (for many-to-many relationships)
 ##################################################
 
+user_event_table = db.Table('user_event',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('event_id', db.Integer, db.ForeignKey('event.id')))
 
+user_task_table = db.Table('user_task',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('event_id', db.Integer, db.ForeignKey('task.id')))
 
 ##################################################
 # Models
@@ -27,8 +33,13 @@ class User(db.Model, UserMixin):
     # a: admin, etc.
     permissions = db.Column(db.String(64))
 
-    # This is a list of metadata tags useful for filtering; for example, class, year, major, etc.
+    # This is a list of metadata tags useful for filtering; for example, class,
+    # year, major, etc.
     metadata_str = db.Column(db.LargeBinary(4096))
+
+    # Events where the user is a manager.
+    managing_events = db.relationship('Event', backref='manager',
+                                      lazy='dynamic')
 
     def __init__(self, name, password, email):
         self.name = name
@@ -37,29 +48,16 @@ class User(db.Model, UserMixin):
         self.permissions = ""
         self.metadata_str = ""
 
-
-# Many to Many Relationship between events and users
-relationships  = db.Table('relations',
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-
-
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    is_private = db.Column(db.Boolean)
-    manager_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
-    tasks = db.relationship('Task', backref='event',
-                                lazy='dynamic')
-    # Define relationship for many to many table
-    users = db.relationship('Users', secondary=relationships,
-        backref=db.backref('events', lazy='dynamic'))
-
-
-
-
+    is_private = db.Column(db.Boolean)
+    manager_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    tasks = db.relationship('Task', backref='event', lazy='select')
+    volunteers = db.relationship('User', secondary=user_event_table,
+                                 backref='volunteering_events', lazy='select')
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -67,10 +65,10 @@ class Task(db.Model):
     location = db.Column(db.String(128))
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
-    users = db.relationship('User', lazy='dynamic')
     description = db.Column(db.String(512))
-
-
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    volunteers = db.relationship('User', secondary=user_task_table,
+                                 backref='tasks', lazy='dynamic')
 
 ##################################################
 # Helper functions
