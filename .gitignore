@@ -1,3 +1,7 @@
 *.pyc
 *.db
 migrations/**
+
+*~
+*.swp
+*.swo
