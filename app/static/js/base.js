@@ -1,3 +1,19 @@
+function assignPageChange(object, page, parameters) {
+	object.click(function(){
+		$.get(page, function(template) {
+			try {
+			  var fn = jinja.compile(template).render(parameters);
+			} catch(e) {
+			  //todo: update error panel
+			  return;
+			}
+			src = fn.toString();
+			$('#content-div').html(src);
+
+		})
+	})
+}
+
 $(".chosen-select").chosen({search_contains: true,
                             disable_search_threshold: 10,
                             width: "200px"})
@@ -23,16 +39,4 @@ $('.datepicker').pickadate({clear: '',
                             }})
                             
 $('.timepicker').pickatime({clear: ''})
-
-$.get("/static/js-templates/test.html", function(template) {
-	try {
-	  var fn = jinja.compile(template).render({"test": "what in the fuck"});
-	} catch(e) {
-	  //todo: update error panel
-	  return;
-	}
-	src = fn.toString();
-	$('#test-div').html(src);
-
-})
 
