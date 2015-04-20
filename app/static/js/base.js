@@ -24,5 +24,3 @@ $('.datepicker').pickadate({clear: '',
                             
 $('.timepicker').pickatime({clear: ''});
 
-
-
