@@ -91,33 +91,35 @@ def dummy():
 
 
 def check_valid_new_event(form):
+    error =""
     if 'is_private' not in form:
-        flash("Event not added , you need to specify privacy!")
+        str+="Event not added , you need to specify privacy!\n"
         return False
     if 'name' not in form:
-        flash("Event not added , you need to specify the name!")
+        str+="Event not added , you need to specify the name!\n"
         return False
     if 'start_time' not in form or 'end_time' not in form:
-        flash("Event not added , you need to specify the time!")
+        str+="Event not added , you need to specify the time!\n"
         return False
     start_time = form['start_time']
     end_time = form['end_time']
     if start_time > end_time:
-        flash("Event not added , start time after end time!")
+        str+="Event not added , start time after end time!\n"
         return False
     if 'manager_id' not in form:
-        flash("Event not added , no manager id!")
+        str+="Event not added , no manager id!\n"
         return False
     if not User.query.filter_by(id=form['manager_id']).first():
-        flash("Event not added , manager does not exist!")
+        str+="Event not added , manager does not exist!\n"
         return False
     if 'user_list' not in form:
-        flash("Event not added , no user list!")
+        str+="Event not added , no user list!\n"
         return False
     if 'task_list' not in form:
-        flash("Event not added , no task list!")
-        return False
-    return True
+        str+="Event not added , no task list!\n"
+    if error != "":
+        return error
+    return None
 
 
 
@@ -130,8 +132,9 @@ def event_list():
                 for e in Event.query.order_by(Event.start_time.desc()).all()]
         return json_out({"status_code": 0, "events": events})
     if request.method == "POST":
-        if not check_valid_new_event(request.form):
-            return json_out({"status_code": 2})
+        status = check_valid_new_event(request.form)
+        if not status:
+            return json_out({"status_code": 2,"status_msg":status})
         form = request.form
         e = Event(is_private=form['is_private'],description=form['description']
                   ,name=form['name'],start_time=form['start_time']
