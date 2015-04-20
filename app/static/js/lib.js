@@ -46,3 +46,22 @@ function safeGet (path, success, error, params)
 			}
 		});
 }
+/*
+ wrapper function for displaying a jinja template
+ 
+page = "/static/js-templates/test.html", parameters = {"test":"fuck"} 
+*/
+function changePage(page, parameters) {
+	$.get(page, function(template) {
+		try {
+		  var fn = jinja.compile(template).render(parameters);
+		} catch(e) {
+		  //todo: update error panel
+		  return;
+		}
+		src = fn.toString();
+		$('#content-div').html(src);
+
+	})
+}
+

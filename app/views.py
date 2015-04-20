@@ -12,10 +12,10 @@ import os, json
 #####################################
 
 @app.route('/')
-@app.route('/index')
+@app.route('/main')
 @login_required
 def index():
-    return render_template('index.html', user=current_user)
+    return render_template('main.html', user=current_user)
 
 @app.route('/profile')
 @login_required
