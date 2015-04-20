@@ -38,5 +38,4 @@ $('.datepicker').pickadate({clear: '',
                                 this.set('select', [date.getFullYear(), date.getMonth(), date.getDate()]);
                             }})
                             
-$('.timepicker').pickatime({clear: ''})
-
+$('.timepicker').pickatime({clear: ''});

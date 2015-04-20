@@ -1,0 +1,16 @@
+<!-- testing task rendering -->
+<script type="text/javascript">
+	function load_task(id)
+	{
+		$.get("/task/" + id, function (data) {
+			if (data.status_code == 0)
+			{
+				// success
+				var x = ninja.compile("/static/js-templates/task.html")
+					.render(data);
+			} else {
+				// not success...
+			}
+		});
+	}
+</script>
