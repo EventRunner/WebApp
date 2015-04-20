@@ -103,14 +103,24 @@ def event(event_id):
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
 def task(task_id):
-    if request.method == "PUT":
-        # update task
-        pass
+    if request.method == "GET":
+        t = Task.query.filter_by(id=task_id).first()
+        if not t:
+            return json_out({"status_code": 2})  # event doesn't exist
+        result = {"status_code": 0,
+                  "id": t.id,
+                  "name": t.name,
+                  "start_time": t.start_time,
+                  "end_time": t.end_time,
+                  "location": t.location,
+                  "description": t.description,
+                  "event_id": t.event_id,
+                  "user_list": map(lambda u: u.id, t.volunteers)
+                 }
+        return json_out(result)
 
-    elif request.method == "GET":
-        # get info for task
-        resp = generate_json_response("tasks.json", int(task_id))
-        return (resp)
+    elif request.method == "PUT":
+        pass
 
 
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
