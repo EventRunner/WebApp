@@ -111,9 +111,6 @@ def check_valid_new_event(form):
     if not User.query.filter_by(id=form['manager_id']).first():
         flash("Event not added , manager does not exist!")
         return False
-    if 'manager_id' not in form:
-        flash("Event not added , no manager id!")
-        return False
     if 'user_list' not in form:
         flash("Event not added , no user list!")
         return False
@@ -138,7 +135,7 @@ def event_list():
         form = request.form
         e = Event(is_private=form['is_private'],description=form['description']
                   ,name=form['name'],start_time=form['start_time']
-                  ,end_time = form['end_time'],manager_id=form['manager_id']
+                  ,end_time = form['end_time'],manager_id=current_user.id
                   ,user_list=form['user_list'], task_list =form['task_list'])
         db.session.add(e)
         db.session.commit()
