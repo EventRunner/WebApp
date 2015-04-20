@@ -3,3 +3,35 @@
     <h1>Look At This Shit</h1>
     <h3>Is everybodys dick really hard right now or is it just me</h3>
 {% endblock %}
+
+<div class="panel default-panel">
+	<div class="panel-header">
+		Managing Events
+	</div>
+	<div class="panel-body" id="managing-events">
+	</div>
+</div>
+
+<script type="text/javascript">
+var user = $.getJSON("/me", 
+	function (data) {
+		var managing_events = data.managing_events;
+		var volunteering_events = data.volunteering_events;
+
+		// check that we got appropriate data
+		if (managing_events != undefined && 
+			volunteering_events != undefined)
+		{
+			// map to html
+			var m_list = managing_events.map(
+				function (event, index) {
+					"<li>" + event.name + "</li>";
+				}
+			);
+
+			$("#managing_events").html("<ul>" + m_list.join("") + "</ul>");
+		}
+	}
+);
+
+</script>
