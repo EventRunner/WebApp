@@ -32,9 +32,18 @@ def profile_id(user_id):
 	return render_template('profile.html', user=current_user, target=user)
 
 #####################################
+# test routes
+#####################################
+@app.route('/test-task')
+@login_required
+def test_task():
+	return render_template('test-task.html', user=current_user)
+
+#####################################
 # public API 
 #####################################
 
+""" helper function for loading dummy data from a file """
 def generate_json_response(file, index):
 	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 	json_url = os.path.join(SITE_ROOT, "dummy_data", file)
@@ -68,7 +77,6 @@ def task(task_id):
 		# get info for task
 		resp = generate_json_response("tasks.json", int(task_id))
 		return (resp)
-
 
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
