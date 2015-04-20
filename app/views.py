@@ -71,11 +71,63 @@ def dummy():
     return "Dummy data successfully created/verified"
 
 
+def check_valid_new_event(form):
+    if 'is_private' not in form:
+        flash("Event not added , you need to specify privacy!")
+        return False
+    if 'name' not in form:
+        flash("Event not added , you need to specify the name!")
+        return False
+    if 'start_time' not in form or 'end_time' not in form:
+        flash("Event not added , you need to specify the time!")
+        return False
+    start_time = form['start_time']
+    end_time = form['end_time']
+    if start_time > end_time:
+        flash("Event not added , start time after end time!")
+        return False
+    if 'manager_id' not in form:
+        flash("Event not added , no manager id!")
+        return False
+    if not User.query.filter_by(id=form['manager_id']).first():
+        flash("Event not added , manager does not exist!")
+        return False
+    if 'manager_id' not in form:
+        flash("Event not added , no manager id!")
+        return False
+    if 'user_list' not in form:
+        flash("Event not added , no user list!")
+        return False
+    if 'task_list' not in form:
+        flash("Event not added , no task list!")
+        return False
+    return True
+
+
+
+
+
 @app.route('/event', methods=["GET", "POST"])
 def event_list():
-    events = [{"id": e.id, "name": e.name}
-              for e in Event.query.order_by(Event.start_time.desc()).all()]
-    return json_out({"status_code": 0, "events": events})
+    if request.method == "GET":
+        events = [{"id": e.id, "name": e.name}
+                for e in Event.query.order_by(Event.start_time.desc()).all()]
+        return json_out({"status_code": 0, "events": events})
+    if request.method == "POST":
+        if not check_valid_new_event(request.form):
+            return json_out({"status_code": 2})
+        form = request.form
+        e = Event(is_private=form['is_private']
+                  ,name=form['name'],start_time=form['start_time']
+                  ,end_time = form['end_time'],manager_id=form['manager_id']
+                  ,user_list=form['user_list'], task_list =form['task_list'])
+        db.session.add(e)
+        db.session.commit()
+        flash("Event "+e.name+" registered.")
+        return json_out({"status_code": 0})
+
+
+
 
 @app.route('/event/<event_id>', methods=["GET", "PUT"])
 @login_required
@@ -100,6 +152,7 @@ def event(event_id):
     elif request.method == "PUT":
         pass
 
+
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
 def task(task_id):
@@ -122,10 +175,8 @@ def task(task_id):
     elif request.method == "PUT":
         pass
 
-@app.route('/me', methods=["GET"])
-@login_required
-def me():
-    u = User.query.filter_by(id=current_user.id).first()
+def get_user_info(user_id):
+    u = User.query.filter_by(id=user_id).first()
     if not u:
         return json_out({"status_code": 2})  # user doesn't exist
     result = {"status_code": 0,
@@ -136,17 +187,20 @@ def me():
              }
     return json_out(result)
 
+@app.route('/me', methods=["GET"])
+@login_required
+def me():
+    get_user_info(current_user)
+
+
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
     if request.method == "PUT":
-        # update event
         pass
 
     elif request.method == "GET":
-        # get info for event
-        pass
-
+        get_user_info(user_id)
 
 #####################################
 # User login stuff
