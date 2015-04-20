@@ -136,7 +136,7 @@ def event_list():
         if not check_valid_new_event(request.form):
             return json_out({"status_code": 2})
         form = request.form
-        e = Event(is_private=form['is_private']
+        e = Event(is_private=form['is_private'],description=form['description']
                   ,name=form['name'],start_time=form['start_time']
                   ,end_time = form['end_time'],manager_id=form['manager_id']
                   ,user_list=form['user_list'], task_list =form['task_list'])
@@ -170,6 +170,52 @@ def event(event_id):
 
     elif request.method == "PUT":
         pass
+
+
+def check_valid_new_task(form):
+    if 'name' not in form:
+        flash("Task not added , you need to specify the name!")
+        return False
+    if 'start_time' not in form or 'end_time' not in form:
+        flash("Task not added , you need to specify the time!")
+        return False
+    start_time = form['start_time']
+    end_time = form['end_time']
+    if start_time > end_time:
+        flash("Task not added , start time after end time!")
+        return False
+    if 'event_id' not in form:
+        flash("Task not added , no event id!")
+        return False
+    if not Event.query.filter_by(id=form['Event_id']).first():
+        flash("Task not added , event does not exist!")
+        return False
+    if 'volunteers' not in form:
+        flash("Task not added , no volunteers list!")
+        return False
+    return True
+
+
+@app.route('/task/<event_id>', methods=["GET", "POST"])
+def task_list(event_id):
+    if request.method == "GET":
+        tasks = [{"id": t.id, "name": t.name}
+                for t in Task.query.filter_by(event_id=event_id).order_by(Event.start_time.desc()).all()]
+        return json_out({"status_code": 0, "events": tasks})
+    if request.method == "POST":
+        if not check_valid_new_task(request.form):
+            return json_out({"status_code": 2})
+        form = request.form
+        t = Task(description=form['description'],location=form['location']
+                  ,name=form['name'],start_time=form['start_time']
+                  ,end_time = form['end_time'],event_id=form['event_id']
+                  ,volunteers =form['volunteers'])
+        db.session.add(t)
+        db.session.commit()
+        flash("Task "+t.name+" Added.")
+        return json_out({"status_code": 0})
+
+
 
 
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
