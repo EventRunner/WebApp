@@ -121,24 +121,55 @@ def event(event_id):
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
 def task(task_id):
-    if request.method == "PUT":
-        # update task
+    if request.method == "GET":
+        t = Task.query.filter_by(id=task_id).first()
+        if not t:
+            return json_out({"status_code": 2})  # event doesn't exist
+        result = {"status_code": 0,
+                  "id": t.id,
+                  "name": t.name,
+                  "start_time": t.start_time,
+                  "end_time": t.end_time,
+                  "location": t.location,
+                  "description": t.description,
+                  "event_id": t.event_id,
+                  "user_list": map(lambda u: u.id, t.volunteers)
+                 }
+        return json_out(result)
+
+    elif request.method == "PUT":
         pass
 
-    elif request.method == "GET":
-        # get info for task
-        resp = generate_json_response("tasks.json", int(task_id))
-        return (resp)
+@app.route('/me', methods=["GET"])
+@login_required
+def me():
+    u = User.query.filter_by(id=current_user.id).first()
+    if not u:
+        return json_out({"status_code": 2})  # user doesn't exist
+    result = {"status_code": 0,
+              "id": u.id,
+              "username": u.name,
+              "managing_events": map(lambda e: e.id, u.managing_events),
+              "volunteering_events": map(lambda e: e.id, u.volunteering_events)
+             }
+    return json_out(result)
 
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
-    if request.method == "PUT":
-        # update event
-        pass
+    if request.method == "GET":
+        u = User.query.filter_by(id=user_id).first()
+        if not u:
+            return json_out({"status_code": 2})  # user doesn't exist
+        result = {"status_code": 0,
+                  "id": u.id,
+                  "username": u.name,
+                  "managing_events": map(lambda e: u.id, u.managing_events),
+                  "volunteering_events": map(lambda e: u.id, u.volunteering_events)
+                 }
+        return json_out(result)
 
-    elif request.method == "GET":
-        # get info for event
+    elif request.method == "PUT":
         pass
 
 

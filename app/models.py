@@ -68,7 +68,7 @@ class Task(db.Model):
     description = db.Column(db.String(512))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     volunteers = db.relationship('User', secondary=user_task_table,
-                                 backref='tasks', lazy='dynamic')
+                                 backref='tasks', lazy='select')
 
 ##################################################
 # Helper functions
