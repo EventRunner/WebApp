@@ -122,6 +122,19 @@ def task(task_id):
     elif request.method == "PUT":
         pass
 
+@app.route('/me', methods=["GET"])
+@login_required
+def me():
+    u = User.query.filter_by(id=current_user.id).first()
+    if not u:
+        return json_out({"status_code": 2})  # user doesn't exist
+    result = {"status_code": 0,
+              "id": u.id,
+              "username": u.name,
+              "managing_events": map(lambda e: u.id, u.managing_events),
+              "volunteering_events": map(lambda e: u.id, u.volunteering_events)
+             }
+    return json_out(result)
 
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
