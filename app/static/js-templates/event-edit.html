@@ -5,13 +5,17 @@
 -->
 
 <script type="text/javascript">
+	function submitForm()
+	{
+		$.post("/event", $("#new_event_form").serialize());
+	}
 </script>
 
-<form method="POST">
+<form method="POST" action="/event" id="new_event_form">
 Name: <input type='text' name='name'/> <br/>
 Description: <input type='description' name='description'/> <br/>
 Start Time: <input type='datetime' name="start_time"/> <br/>
 End Time: <input type='datetime' name="end_time"/> <br/>
 Private Event: <input type='checkbox' name="is_private"/> <br/>
-<input type='submit' name="Submit a Bitch"/>
+<button class='btn' onclick='submitForm()'/>
 </form>
