@@ -94,27 +94,20 @@ def check_valid_new_event(form):
     error =""
     if 'is_private' not in form:
         str+="Event not added , you need to specify privacy!\n"
-        return False
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
-        return False
     if 'start_time' not in form or 'end_time' not in form:
         str+="Event not added , you need to specify the time!\n"
-        return False
     start_time = form['start_time']
     end_time = form['end_time']
     if start_time > end_time:
         str+="Event not added , start time after end time!\n"
-        return False
     if 'manager_id' not in form:
         str+="Event not added , no manager id!\n"
-        return False
     if not User.query.filter_by(id=form['manager_id']).first():
         str+="Event not added , manager does not exist!\n"
-        return False
     if 'user_list' not in form:
         str+="Event not added , no user list!\n"
-        return False
     if 'task_list' not in form:
         str+="Event not added , no task list!\n"
     if error != "":
