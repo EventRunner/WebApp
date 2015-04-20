@@ -3,5 +3,10 @@
 <div id="content-div">
 </div>
 
-<script>changePage("static/js-templates/index.html", {})</script>
+<script>
+	// this be a global user ref
+	var user;
+	safeGet("/me", function (data) { user = data });
+	changePage("static/js-templates/index.html", {});
+</script>
 {% endblock %}
