@@ -22,17 +22,5 @@ $('.datepicker').pickadate({clear: '',
                                 this.set('select', [date.getFullYear(), date.getMonth(), date.getDate()]);
                             }})
                             
-$('.timepicker').pickatime({clear: ''})
-
-$.get("/static/js-templates/test.html", function(template) {
-	try {
-	  var fn = jinja.compile(template).render({"test": "what in the fuck"});
-	} catch(e) {
-	  //todo: update error panel
-	  return;
-	}
-	src = fn.toString();
-	$('#test-div').html(src);
-
-})
+$('.timepicker').pickatime({clear: ''});
 

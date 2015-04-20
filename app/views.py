@@ -12,10 +12,10 @@ import os, json
 #####################################
 
 @app.route('/')
-@app.route('/index')
+@app.route('/main')
 @login_required
 def index():
-    return render_template('index.html', user=current_user)
+    return render_template('main.html', user=current_user)
 
 @app.route('/profile')
 @login_required
@@ -31,9 +31,27 @@ def profile_id(user_id):
         return redirect(url_for('index'))
     return render_template('profile.html', user=current_user, target=user)
 
+# test routes
 #####################################
-# public API
+@app.route('/test-task')
+@login_required
+def test_task():
+	return render_template('test-task.html', user=current_user)
+
 #####################################
+# public API 
+#####################################
+
+""" helper function for loading dummy data from a file """
+def generate_json_response(file, index):
+	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+	json_url = os.path.join(SITE_ROOT, "dummy_data", file)
+	data = json.load(open(json_url))[index]
+	resp = Response(response=json.dumps(data),
+		status=200, \
+		mimetype="application/json")
+	return resp
+
 
 def json_out(s):
     return Response(json.dumps(s), mimetype="application/json")
@@ -182,8 +200,8 @@ def get_user_info(user_id):
     result = {"status_code": 0,
               "id": u.id,
               "username": u.name,
-              "managing_events": map(lambda e: u.id, u.managing_events),
-              "volunteering_events": map(lambda e: u.id, u.volunteering_events)
+              "managing_events": map(lambda e: e.id, u.managing_events),
+              "volunteering_events": map(lambda e: e.id, u.volunteering_events)
              }
     return json_out(result)
 
@@ -201,6 +219,7 @@ def user(user_id):
 
     elif request.method == "GET":
         get_user_info(user_id)
+
 
 #####################################
 # User login stuff

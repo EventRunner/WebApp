@@ -1,0 +1,12 @@
+{% extends "navbar.html" %}
+{% block content %}
+<div id="content-div">
+</div>
+
+<script>
+	// this be a global user ref
+	var user;
+	safeGet("/me", function (data) { user = data });
+	changePage("static/js-templates/index.html", {});
+</script>
+{% endblock %}
