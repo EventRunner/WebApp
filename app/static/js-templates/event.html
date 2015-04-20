@@ -1,0 +1,69 @@
+<!-- 
+  single event view : renders the data of an event
+  	
+  requires id to be in parameters
+ -->
+
+<!-- event info -->
+ <div class="panel panel-default">
+ 	<div class="panel-heading" id="event-heading">
+ 		<b id="event-title"></b>
+ 	</div>
+
+ 	<div class="panel-body" id="event-body">
+ 	</div>
+ </div>
+
+<!-- tasks panel -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Tasks
+	</div>
+	 <ul class="list-group" id="task-list">
+ 	</ul>
+</div>
+
+<script type="text/javascript">
+	function goToTask(task_id)
+	{
+		changePage("static/js-templates/task.html", {id: task_id});
+	}
+
+	safeGet("/event/" + {{id}}, function (data) {
+		console.log(data);
+		$("#event-title").html(data.name);
+		
+		// tag with glyphicon if open
+		if (data.is_private) 
+		{
+			$("#event-heading").append("<span style='float:right' class='glyphicon glyphicon-eye-close' aria-hidden='true'></span>" + 
+				"<span style='float:right'> This event is private &nbsp; </span>");
+		} 
+		else 
+		{
+			$("#event-heading").append("<span style='float:right' class='glyphicon glyphicon-eye-open' aria-hidden='true'></span>" + 
+				"<span style='float:right'> This event is public &nbsp; </span>");
+		}
+
+		// handle description
+		if (data.description != undefined && data.description != "")
+		{
+			$("#event-body").html("<p>" + data.description + "</p>");
+		} 
+		else 
+		{
+			$("#event-body").html("<p> No event description... </p>");
+		}
+
+		// tasks
+		data.task_list.map(function (task_id, index) {
+			// get task data
+			safeGet("/task/" + task_id, function (task_data) {
+				// append list item
+				$("#task-list").append("<li class='list-group-item'> " +
+					"<a onclick='goToTask('" + task_data.id +")'>" + task_data.name +
+					"</a> </li>");
+			});
+		});
+	});
+</script>

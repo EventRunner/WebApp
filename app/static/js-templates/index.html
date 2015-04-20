@@ -1,9 +1,10 @@
 <div class="panel panel-default" id="managing-panel">
 	<div class="panel-heading">
-		Managing Events
+		Managing Events 
+		<a href="#"> <span style='float:right' onclick="changePage('static/js-templates/event-edit.html')" class='glyphicon glyphicon-plus'></span></a>
 	</div>
 	<div class="panel-body" id="managing-panel-body">
-			No managing events...
+		No managing events...
 	</div>
 </div>
 
@@ -12,60 +13,69 @@
 		Volunteering Events
 	</div>
 	<div class="panel-body" id="volunteering-panel-body">
-			No volunteering events...
+		No volunteering events...
 	</div>
 </div>
 
 <script type="text/javascript">
-	safeGet("/me", function (data) {
-			var managing_events = data.managing_events;
-			var volunteering_events = data.volunteering_events;
+	function goToEvent(id)
+	{
+		changePage("static/js-templates/event.html", {id: id});
+	}
 
-			// check that we got appropriate data
-			if (managing_events != undefined && 
-				managing_events.length > 0)
-			{
-				// put a list in that bitch
-				$("#managing-panel-body").hide();
-				$("#managing-panel").append("<ul class='list-group'" +
-					" id='managing-events'>");
+	function removeVolunteeringEvent(id)
+	{
+		// TODO
+	}
 
-				// map to html
-				managing_events.map(
-					function (event_id, index) {
-						// now get details 
-						safeGet("/event/" + event_id, 
-							function (event_data) {
-								$("#managing-events").append("<li class='list-group-item'>" +
-									"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
-								"</li>");
-						});
-					}
-				);
+	var managing_events = user.managing_events;
+	var volunteering_events = user.volunteering_events;
+
+	// check that we got appropriate data
+	if (managing_events != undefined && 
+		managing_events.length > 0)
+	{
+		// put a list in that bitch
+		$("#managing-panel-body").hide();
+		$("#managing-panel").append("<ul class='list-group'" +
+			" id='managing-events'>");
+
+		// map to html
+		managing_events.map(
+			function (event_id, index) {
+				// now get details 
+				safeGet("/event/" + event_id, 
+					function (event_data) {
+						$("#managing-events").append("<li class='list-group-item'>" +
+							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
+						"</li>");
+				});
 			}
+		);
+	}
 
-			// check that we got appropriate data
-			if (volunteering_events != undefined 
-				&& volunteering_events.length > 0)
-			{
-				// put a list in that bitch
-				$("#volunteering-panel-body").hide();
-				$("#volunteering-panel").append("<ul class='list-group'" +
-					" id='volunteering-events'>");
+	// check that we got appropriate data
+	if (volunteering_events != undefined 
+		&& volunteering_events.length > 0)
+	{
+		// put a list in that bitch
+		$("#volunteering-panel-body").hide();
+		$("#volunteering-panel").append("<ul class='list-group'" +
+			" id='volunteering-events'>");
 
-				// map to html
-				volunteering_events.map(
-					function (event_id, index) {
-						// now get details 
-						safeGet("/event/" + event_id, 
-							function (event_data) {
-								$("#volunteering-events").append("<li class='list-group-item'>" +
-									"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
-								"</li>");
-						});
-					}
-				);
+		// map to html
+		volunteering_events.map(
+			function (event_id, index) {
+				// now get details 
+				safeGet("/event/" + event_id, 
+					function (event_data) {
+						$("#volunteering-events").append("<li class='list-group-item'>" +
+							"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
+							"<span style='float:right' class='glyphicon glyphicon-remove'> </span>" +
+						"</li>");
+				});
 			}
-		}
-	);
+		);
+	}
+		
 </script>
