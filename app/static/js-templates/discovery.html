@@ -1,0 +1,42 @@
+
+<h2>Search for a thing</h2>
+
+<h3>Event Name</h3>
+	
+<form role="form" onsubmit="return false">
+	<div class="form-group">
+		<input class="form-control" id="searchinput" type="search" placeholder="Search..." />
+	</div>
+	<div id="event-list" class="list-group">
+		<a class='list-group-item' href="#"></a>
+	</div>
+</form>
+
+<script>
+	safeGet("/event", function (data) {
+			var volunteering_events = data;
+
+			// check that we got appropriate data
+			if (volunteering_events != undefined 
+				&& volunteering_events.length > 0)
+			{
+
+				// map to html
+				volunteering_events.map(
+					function (event_id, index) {
+						// now get details 
+						safeGet("/event/" + event_id, 
+							function (event_data) {
+								$("#event-list").append("<li class='list-group-item'>" +
+									"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
+								"</li>");
+						});
+					}
+				);
+			}
+		}
+	);
+
+$('#event-list').btsListFilter('#searchinput', {itemChild: 'span'});
+</script>
+

@@ -13,6 +13,7 @@ import os, json
 
 @app.route('/')
 @app.route('/main')
+@app.route('/index')
 @login_required
 def index():
     return render_template('main.html', user=current_user)
