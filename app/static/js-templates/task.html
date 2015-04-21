@@ -1,13 +1,56 @@
-<!-- task view - display a certain task -->
+<!--
+	task view displays the details of a task
+
+	requires the task id to be passed in as 'id'
+-->
+
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<b> {{ name }} </b>
+		<b id="task-title"> </b>
 	</div>
-	
-	<ul class="list-group">
-		<li class="list-group-item"> 
-			<span style="float:left"> <b> Location </b> </span>
-			<span style="float:right"> {{ location }} </span>
-		</li>
+	<div class="panel-body">
+		Description:
+
+		<p id="description">
+		</p>
+
+		Location: <b id="location"></b>
+
+		<br/>
+
+		From <b id="from"> </b> to <b id="to"> </b>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Bitches who gonna do this 
+	</div>
+	<ul class="list-group" id="assigned">
+
 	</ul>
 </div>
+
+<script type="text/javascript">
+	safeGet("/task/" + {{ id }}, 
+		function (task_data) {
+			console.log(task_data);
+			// populate page 
+			$("#task-title").text(task_data.name);
+
+			$("#description").text(task_data.description);
+
+			$("#from").text(task_data.start_time);
+			$("#to").text(task_data.end_time);
+
+			task_data.user_list.map(function (user_id, index) {
+				safeGet("/user/" + user_id, function (user_data) {
+					$("#assigned").append("<li class='list-group-item'>" +
+						user_data.username +
+						"</li>")
+				});
+			});
+		}
+	);
+
+</script>

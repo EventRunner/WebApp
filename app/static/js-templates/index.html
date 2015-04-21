@@ -18,11 +18,6 @@
 </div>
 
 <script type="text/javascript">
-	function goToEvent(id)
-	{
-		changePage("static/js-templates/event.html", {id: id});
-	}
-
 	function removeVolunteeringEvent(id)
 	{
 		// TODO
@@ -70,8 +65,7 @@
 				safeGet("/event/" + event_id, 
 					function (event_data) {
 						$("#volunteering-events").append("<li class='list-group-item'>" +
-							"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
-							"<span style='float:right' class='glyphicon glyphicon-remove'> </span>" +
+							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
 						"</li>");
 				});
 			}

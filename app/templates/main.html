@@ -6,7 +6,8 @@
 <script>
 	// this be a global user ref
 	var user;
-	safeGet("/me", function (data) { user = data });
+
+	safeGet("/me", function (data) { user = data; });
 	changePage("static/js-templates/index.html", {});
 </script>
 {% endblock %}

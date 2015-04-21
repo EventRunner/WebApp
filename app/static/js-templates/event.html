@@ -24,13 +24,7 @@
 </div>
 
 <script type="text/javascript">
-	function goToTask(task_id)
-	{
-		changePage("static/js-templates/task.html", {id: task_id});
-	}
-
 	safeGet("/event/" + {{id}}, function (data) {
-		console.log(data);
 		$("#event-title").html(data.name);
 		
 		// tag with glyphicon if open
@@ -61,7 +55,7 @@
 			safeGet("/task/" + task_id, function (task_data) {
 				// append list item
 				$("#task-list").append("<li class='list-group-item'> " +
-					"<a onclick='goToTask('" + task_data.id +")'>" + task_data.name +
+					"<a onclick='goToTask(" + task_data.id +")'>" + task_data.name +
 					"</a> </li>");
 			});
 		});

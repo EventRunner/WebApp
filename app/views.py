@@ -91,9 +91,9 @@ def dummy():
 
 
 def check_valid_new_event(form):
-    error =""
-    if 'is_private' not in form:
-        str+="Event not added , you need to specify privacy!\n"
+    str = ""
+    # if 'is_private' not in form:
+    #     str+="Event not added , you need to specify privacy!\n"
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
     if 'start_time' not in form or 'end_time' not in form:
@@ -110,8 +110,8 @@ def check_valid_new_event(form):
         str+="Event not added , no user list!\n"
     if 'task_list' not in form:
         str+="Event not added , no task list!\n"
-    if error != "":
-        return error
+    if str != "":
+        return str
     return None
 
 
@@ -129,10 +129,11 @@ def event_list():
         if not status:
             return json_out({"status_code": 2,"status_msg":status})
         form = request.form
-        e = Event(is_private=form['is_private'],description=form['description']
+        is_private = True if 'is_private' in form else False
+        e = Event(is_private=is_private,description=form['description']
                   ,name=form['name'],start_time=form['start_time']
                   ,end_time = form['end_time'],manager_id=current_user.id
-                  ,user_list=form['user_list'], task_list =form['task_list'])
+                  ,user_list=[], task_list =[])
         db.session.add(e)
         db.session.commit()
         flash("Event "+e.name+" registered.")
@@ -189,26 +190,26 @@ def check_valid_new_task(form):
     return True
 
 
-@app.route('/task/<event_id>', methods=["GET", "POST"])
-def task_list(event_id):
-    if request.method == "GET":
-        tasks = [{"id": t.id, "name": t.name}
-                for t in Task.query.filter_by(event_id=event_id).order_by(Event.start_time.desc()).all()]
-        return json_out({"status_code": 0, "events": tasks})
-    if request.method == "POST":
-        if not check_valid_new_task(request.form):
-            return json_out({"status_code": 2})
-        form = request.form
-        t = Task(description=form['description'],location=form['location']
-                  ,name=form['name'],start_time=form['start_time']
-                  ,end_time = form['end_time'],event_id=form['event_id']
-                  ,volunteers =form['volunteers'])
-        db.session.add(t)
-        db.session.commit()
-        flash("Task "+t.name+" Added.")
-        return json_out({"status_code": 0})
+# @app.route('/task/<event_id>', methods=["GET", "POST"])
+# def task_list(event_id):
+#     if request.method == "GET":
+#         tasks = [{"id": t.id, "name": t.name}
+#                 for t in Task.query.filter_by(event_id=event_id).order_by(Event.start_time.desc()).all()]
+#         return json_out({"status_code": 0, "events": tasks})
+#     if request.method == "POST":
+#         if not check_valid_new_task(request.form):
+#             return json_out({"status_code": 2})
+#         form = request.form
+#         t = Task(description=form['description'],location=form['location']
+#                   ,name=form['name'],start_time=form['start_time']
+#                   ,end_time = form['end_time'],event_id=form['event_id']
+#                   ,volunteers =form['volunteers'])
+#         db.session.add(t)
+#         db.session.commit()
+#         flash("Task "+t.name+" Added.")
+#         return json_out({"status_code": 0})
 
-
+ 
 
 
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
@@ -248,7 +249,7 @@ def get_user_info(user_id):
 @app.route('/me', methods=["GET"])
 @login_required
 def me():
-    get_user_info(current_user)
+    return get_user_info(current_user.id)
 
 
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
@@ -258,7 +259,7 @@ def user(user_id):
         pass
 
     elif request.method == "GET":
-        get_user_info(user_id)
+        return get_user_info(user_id)
 
 
 #####################################

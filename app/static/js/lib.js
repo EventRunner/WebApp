@@ -1,3 +1,5 @@
+var app_history = [];
+
 /* 
  * displays an alert in the shared alert area
  */
@@ -52,6 +54,7 @@ function safeGet (path, success, error, params)
 page = "/static/js-templates/test.html", parameters = {"test":"fuck"} 
 */
 function changePage(page, parameters) {
+	app_history.push({ page : page, parameters : parameters });
 	$.get(page, function(template) {
 		try {
 		  var fn = jinja.compile(template).render(parameters);
@@ -65,3 +68,37 @@ function changePage(page, parameters) {
 	})
 }
 
+/*
+ * navigate back a page
+ */ 
+function backPage()
+{
+	// make sure we can go back
+	if (app_history.length > 1)
+	{
+		app_history.pop();
+		var last_page = app_history.pop();
+
+		changePage(last_page.page, last_page.parameters);
+	}
+}
+
+/*
+ * reload the current page
+ */
+function refreshPage()
+{
+	var current_page = app_history.pop();
+	changePage(current_page.page, current_page.parameters);
+}
+
+/* shortcuts to go to a certain type of page */
+function goToTask(task_id)
+{
+	changePage("static/js-templates/task.html", { id : task_id });
+}
+
+function goToEvent(id)
+{
+	changePage("static/js-templates/event.html", { id : id });
+}

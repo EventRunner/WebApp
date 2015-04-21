@@ -18,61 +18,77 @@
 	      {% endif %}
 	    {% endwith %}
 	</div>
-	<nav class="navbar navbar-default">
-	  <div class="container-fluid">
-	    <!-- Brand and toggle get grouped for better mobile display -->
-	    <div class="navbar-header">
-	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-		<span class="sr-only">Toggle navigation</span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-	      </button>
-	      <a class="navbar-brand" href="/">VENT: An Event Planner for Cool People</a>
-	    </div>
 
-	    <!-- Collect the nav links, forms, and other content for toggling -->
-	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-	      <ul class="nav navbar-nav">
-		<li class="dropdown">
-		  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Look At <span class="caret"></span></a>
-		  <ul class="dropdown-menu" role="menu">
-		    <li><a href="#" id="profile-link">Your Profile</a></li>
-		    <li><a href="#" id="discovery-link">Find An Event</a></li>
-		    <li><a href="#">Upcoming Events</a></li>
-		    <li><a href="#">Recent Events</a></li>
-		  </ul>
-		</li>
-		<li class="dropdown">
-		  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Do <span class="caret"></span></a>
-		  <ul class="dropdown-menu" role="menu">
-		    <li><a href="#">Create Event</a></li>
-		  </ul>
-		</li>
-        {% if user.permissions %}
-		<li class="dropdown">
-		  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin Shit <span class="caret"></span></a>
-		  <ul class="dropdown-menu" role="menu">
-		    <li><a href="/admin">Give Privileges</a></li>			  
-		  </ul>
-		</li>
-        {% endif %}
-	      </ul>
-	      <ul class="nav navbar-nav navbar-right">
-		<li class="dropdown">
-		  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">What is gucci {{user.name}} <span class="caret"></span></a>
-		  <ul class="dropdown-menu" role="menu">
-		    <li><a href="/logout">Sign Out</a></li>
-		    <li><a href="#">Update Info</a></li>
-		  </ul>
-		</li>
-	      </ul>
-	    </div><!-- /.navbar-collapse -->
-	  </div><!-- /.container-fluid -->
-	</nav>
+	
+	<div style="">
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		  	<div style="float: left;margin-top: 8px; margin-bottom: 8px; margin-right: 10px;">
+				<!-- back and refresh buttons -->
+				<button class='btn btn-default' onclick="backPage()"> 
+					<span class="glyphicon glyphicon-menu-left"> </span> 
+
+					&nbsp; Back
+				</button>
+
+				<button class='btn btn-default' onclick='refreshPage()'>
+					Refresh &nbsp;
+					<span class="glyphicon glyphicon-refresh"></span>
+				</button>
+			</div>
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+		     	</button>
+		    	<a class="navbar-brand" href="/">VENT</a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+			<li class="dropdown">
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Look At <span class="caret"></span></a>
+			  <ul class="dropdown-menu" role="menu">
+			    <li><a href="#" id="profile-link">Your Profile</a></li>
+			    <li><a href="#" id="discovery-link">Find An Event</a></li>
+			    <li><a href="#">Upcoming Events</a></li>
+			    <li><a href="#">Recent Events</a></li>
+			  </ul>
+			</li>
+			<li class="dropdown">
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Do <span class="caret"></span></a>
+			  <ul class="dropdown-menu" role="menu">
+			    <li><a href="#">Create Event</a></li>
+			  </ul>
+			</li>
+	        {% if user.permissions %}
+			<li class="dropdown">
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin Shit <span class="caret"></span></a>
+			  <ul class="dropdown-menu" role="menu">
+			    <li><a href="/admin">Give Privileges</a></li>			  
+			  </ul>
+			</li>
+	        {% endif %}
+		      </ul>
+		      <ul class="nav navbar-nav navbar-right">
+			<li class="dropdown">
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">What is gucci {{user.name}} <span class="caret"></span></a>
+			  <ul class="dropdown-menu" role="menu">
+			    <li><a href="/logout">Sign Out</a></li>
+			    <li><a href="#">Update Info</a></li>
+			  </ul>
+			</li>
+		      </ul>
+		    </div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+	</div>
 
     <hr>
-    
     
     {% block content %}{% endblock %}
 
