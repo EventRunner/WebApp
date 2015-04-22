@@ -164,8 +164,12 @@ def event(event_id):
 
     elif request.method == "PUT":
         for key in request.form:
-            pass
-
+            if key not in e.__dict__:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+            setattr(e, key, request.form[key])
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 def check_valid_new_task(form):
     if 'name' not in form:
