@@ -155,7 +155,7 @@ def event_list():
         db.session.commit()
         return json_out({"status_code": 0})
 
-@app.route('/event/<event_id>', methods=["GET", "PUT"])
+@app.route('/event/<event_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def event(event_id):
     e = Event.query.filter_by(id=event_id).first()
@@ -182,17 +182,23 @@ def event(event_id):
             elif key == "user_list":
                 try:
                     L = json.loads(request.form[key])
-                    volunteers = [get_user(id=i) for i in L]
-                    if None in volunteers:
-                        idd = L[volunteers.index(None)]
-                        return json_out_err("Not a valid user_id: %d" % idd)
-                    e.volunteers = volunteers
                 except:
                     return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                e.volunteers = volunteers
             else:
                 return json_out_err("Not a valid field: "+key)
         db.session.commit()
         return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(e)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
 
 def json_out_err(msg):
     return json_out({"status_code": 2, "status_msg": msg})
@@ -262,10 +268,11 @@ def task(task_id):
 
     elif request.method == "PUT":
         for key in request.form:
-            if key not in t.__dict__:
-                return json_out({"status_code": 2,
-                                 "status_msg": "Not a valid field: "+key})
-            setattr(t, key, request.form[key])
+            if key in t.__dict__:
+                setattr(t, key, request.form[key])
+            # TODO: user_list
+            else:
+                return json_out_err("Not a valid field: "+key)
         db.session.commit()
         return json_out({"status_code": 0})
 
