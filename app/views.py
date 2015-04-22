@@ -102,19 +102,34 @@ def check_valid_new_event(form):
     str = ""
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Event not added , (Jon is Garbage) you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
         str+="Event not added , you need to specify the time!\n"
-    #start_time = form['start_time']
-    #end_time = form['end_time']
-    #if start_time > end_time:
-    #    str+="Event not added , start time after end time!\n"
-    # if 'user_list' not in form:
-    #     str+="Event not added , no user list!\n"
-    # if 'task_list' not in form:
-    #     str+="Event not added , no task list!\n"
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
+    if start_time > end_time:
+        str+="Event not added , start time after end time!\n"
+
+    if 'volunteers' in form:
+        list = form['volunteers']
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
     if str != "":
         return str
+
+    #name description start time end time,
     return None
+
+
 
 @app.route('/event', methods=["GET", "POST"])
 def event_list():
@@ -123,7 +138,6 @@ def event_list():
                 for e in Event.query.order_by(Event.start_time.desc()).all()]
         return json_out({"status_code": 0, "events": events})
     if request.method == "POST":
-        print request.form
         status = check_valid_new_event(request.form)
         if status:
             return json_out({"status_code": 2,"status_msg":status})
@@ -131,11 +145,15 @@ def event_list():
         is_private = True if 'is_private' in form else False
         start_time = parser.parse(form['start_time'])
         end_time = parser.parse(form['end_time'])
+        volunteers = []
+        if 'volunteers' in form:
+            list = form['volunteers']
+            volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
 
         e = Event(is_private=is_private,description= form['description']
                   ,name=form['name'],start_time= start_time
                   ,end_time = end_time,manager_id=current_user.id
-                  ,volunteers=[], tasks =[])
+                  ,volunteers=volunteers, tasks =[])
         db.session.add(e)
         db.session.commit()
         return json_out({"status_code": 0})
