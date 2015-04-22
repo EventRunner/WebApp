@@ -8,13 +8,12 @@
 		<input class="form-control" id="searchinput" type="search" placeholder="Search..." />
 	</div>
 	<div id="event-list" class="list-group">
-		<a class='list-group-item' href="#"></a>
 	</div>
 </form>
 
 <script>
 	safeGet("/event", function (data) {
-			var volunteering_events = data;
+			var volunteering_events = data["events"].slice(0,20);
 
 			// check that we got appropriate data
 			if (volunteering_events != undefined 
@@ -23,12 +22,12 @@
 
 				// map to html
 				volunteering_events.map(
-					function (event_id, index) {
+					function (event, index) {
 						// now get details 
-						safeGet("/event/" + event_id, 
+						safeGet("/event/" + event["id"], 
 							function (event_data) {
 								$("#event-list").append("<li class='list-group-item'>" +
-									"<a href='event/" + event_data.id + "'>" +	event_data.name + "</a>"+
+									"<a href='event/" + event_data.id + "'><span>" + event_data.name + "</span></a>"+
 								"</li>");
 						});
 					}
