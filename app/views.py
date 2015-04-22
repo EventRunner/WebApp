@@ -112,8 +112,8 @@ def check_valid_new_event(form):
     if start_time > end_time:
         str+="Event not added , start time after end time!\n"
 
-    if 'volunteers' in form:
-        list = form['volunteers']
+    if 'user_list' in form:
+        list = form['user_list']
         for vol in list:
             if not vol.isdigit:
                 str+="User "+vol+" is not valid user! \n"
@@ -126,10 +126,7 @@ def check_valid_new_event(form):
     if str != "":
         return str
 
-    #name description start time end time,
     return None
-
-
 
 @app.route('/event', methods=["GET", "POST"])
 def event_list():
@@ -146,8 +143,8 @@ def event_list():
         start_time = parser.parse(form['start_time'])
         end_time = parser.parse(form['end_time'])
         volunteers = []
-        if 'volunteers' in form:
-            list = form['volunteers']
+        if 'user_list' in form:
+            list = form['user_list']
             volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
 
         e = Event(is_private=is_private,description= form['description']
