@@ -102,18 +102,30 @@ def check_valid_new_event(form):
     str = ""
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Event not added , (Jon is Garbage) you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
         str+="Event not added , you need to specify the time!\n"
-    #start_time = form['start_time']
-    #end_time = form['end_time']
-    #if start_time > end_time:
-    #    str+="Event not added , start time after end time!\n"
-    # if 'user_list' not in form:
-    #     str+="Event not added , no user list!\n"
-    # if 'task_list' not in form:
-    #     str+="Event not added , no task list!\n"
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
+    if start_time > end_time:
+        str+="Event not added , start time after end time!\n"
+
+    if 'user_list' in form:
+        list = form['user_list']
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
     if str != "":
         return str
+
     return None
 
 @app.route('/event', methods=["GET", "POST"])
@@ -123,7 +135,6 @@ def event_list():
                 for e in Event.query.order_by(Event.start_time.desc()).all()]
         return json_out({"status_code": 0, "events": events})
     if request.method == "POST":
-        print request.form
         status = check_valid_new_event(request.form)
         if status:
             return json_out({"status_code": 2,"status_msg":status})
@@ -131,16 +142,20 @@ def event_list():
         is_private = True if 'is_private' in form else False
         start_time = parser.parse(form['start_time'])
         end_time = parser.parse(form['end_time'])
+        volunteers = []
+        if 'user_list' in form:
+            list = form['user_list']
+            volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
 
         e = Event(is_private=is_private,description= form['description']
                   ,name=form['name'],start_time= start_time
                   ,end_time = end_time,manager_id=current_user.id
-                  ,volunteers=[], tasks =[])
+                  ,volunteers=volunteers, tasks =[])
         db.session.add(e)
         db.session.commit()
         return json_out({"status_code": 0})
 
-@app.route('/event/<event_id>', methods=["GET", "PUT"])
+@app.route('/event/<event_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def event(event_id):
     e = Event.query.filter_by(id=event_id).first()
@@ -163,12 +178,31 @@ def event(event_id):
 
     elif request.method == "PUT":
         for key in request.form:
-            if key not in e.__dict__:
-                return json_out({"status_code": 2,
-                                 "status_msg": "Not a valid field: "+key})
-            setattr(e, key, request.form[key])
+            if key in e.__dict__:
+                setattr(e, key, request.form[key])
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                except:
+                    return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                e.volunteers = volunteers
+            else:
+                return json_out_err("Not a valid field: "+key)
         db.session.commit()
         return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(e)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+
+def json_out_err(msg):
+    return json_out({"status_code": 2, "status_msg": msg})
 
 def check_valid_new_task(form):
     if 'name' not in form:
@@ -213,13 +247,14 @@ def check_valid_new_task(form):
 #         flash("Task "+t.name+" Added.")
 #         return json_out({"status_code": 0})
 
-@app.route('/task/<task_id>', methods=["GET", "PUT"])
+@app.route('/task/<task_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def task(task_id):
+    t = Task.query.filter_by(id=task_id).first()
+    if not t:
+        return json_out({"status_code": 2})  # event doesn't exist
+
     if request.method == "GET":
-        t = Task.query.filter_by(id=task_id).first()
-        if not t:
-            return json_out({"status_code": 2})  # event doesn't exist
         result = {"status_code": 0,
                   "id": t.id,
                   "name": t.name,
@@ -233,7 +268,19 @@ def task(task_id):
         return json_out(result)
 
     elif request.method == "PUT":
-        pass
+        for key in request.form:
+            if key in t.__dict__:
+                setattr(t, key, request.form[key])
+            # TODO qfan: user_list
+            else:
+                return json_out_err("Not a valid field: "+key)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(t)
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 def get_user_info(user_id):
     u = User.query.filter_by(id=user_id).first()
@@ -256,12 +303,20 @@ def me():
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
-    if request.method == "PUT":
-        pass
-
-    elif request.method == "GET":
+    if request.method == "GET":
         return get_user_info(user_id)
 
+    elif request.method == "PUT":
+        u = User.query.filter_by(id=user_id).first()
+        if not u:
+            return json_out({"status_code": 2})  # user doesn't exist
+        for key in request.form:
+            if key not in u.__dict__:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+            setattr(u, key, request.form[key])
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 #####################################
 # User login stuff

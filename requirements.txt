@@ -4,3 +4,4 @@ flask-script
 flask-migrate
 flask-login
 simple-crypt
+python-dateutil
