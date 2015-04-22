@@ -185,15 +185,20 @@ def event(event_id):
             elif key == "user_list":
                 try:
                     L = json.loads(request.form[key])
-                    e.volunteers = [get_user(id=i) for i in L]
+                    volunteers = [get_user(id=i) for i in L]
+                    if None in volunteers:
+                        idd = L[volunteers.index(None)]
+                        return json_out_err("Not a valid user_id: %d" % idd)
+                    e.volunteers = volunteers
                 except:
-                    return json_out({"status_code": 2,
-                                     "status_msg": "Not a valid "+key})
+                    return json_out_err("Not a valid "+key)
             else:
-                return json_out({"status_code": 2,
-                                 "status_msg": "Not a valid field: "+key})
+                return json_out_err("Not a valid field: "+key)
         db.session.commit()
         return json_out({"status_code": 0})
+
+def json_out_err(msg):
+    return json_out({"status_code": 2, "status_msg": msg})
 
 def check_valid_new_task(form):
     if 'name' not in form:
