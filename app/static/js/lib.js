@@ -13,7 +13,7 @@ function addAlert (message, type)
 			color = "alert-success";
 		} else if (type == "error")
 		{
-			color = "alert-error";
+			color = "alert-danger";
 		}
 	}
 	$("#alerts-area").
@@ -23,6 +23,14 @@ function addAlert (message, type)
 			"data-dismiss='alert' aria-hidden='true'>" +
 			"x </button> <p>" + message + "</p>" +
 			"</div> </div> </div>");
+}
+
+/*
+ * updates user reference. call after changing user data.
+ */
+function loadUser()
+{
+	safeGet("/me", function (data) { user = data; });
 }
 
 /*
@@ -95,12 +103,21 @@ function backPage()
 }
 
 /*
+ * clears the page of alerts
+ */ 
+function clearAlerts()
+{
+	$("#alerts-area").html("");
+}
+
+/*
  * reload the current page
  */
 function refreshPage()
 {
 	var current_page = app_history.pop();
 	changePage(current_page.page, current_page.parameters);
+	clearAlerts();
 }
 
 /* shortcuts to go to a certain type of page */

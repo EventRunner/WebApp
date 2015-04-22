@@ -54,7 +54,7 @@
 
 		// handle when the delete button is pressed
 		$('#confirm-delete').on('show.bs.modal', function(e) {
-		    $(this).find('.btn-ok').on('click', function (e) 
+		    $(this).find('.btn-ok').off().on('click', function (e) 
 		    {
 		    	$.ajax({
 				    url: '/event/' + data.id,
@@ -62,6 +62,7 @@
 				    success: function(result) {
 				        if (result.status_code == 0)
 				        {
+				        	loadUser();
 				        	backPage();
 				        	addAlert("Successfully deleted event.", "success");
 				        }
@@ -70,6 +71,10 @@
 				        	addAlert("There was an issue with your request..." +
 				        		" Please try again.", "error");
 				        }
+				    },
+				    error: function (result) {
+				    	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
 				    }
 				});
 		    });

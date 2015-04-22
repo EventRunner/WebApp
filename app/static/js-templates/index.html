@@ -76,7 +76,7 @@
 
 	// handle when the delete button is pressed
 		$('#confirm-delete').on('show.bs.modal', function(e) {
-		    $(this).find('.btn-ok').on('click', function (id) 
+		    $(this).find('.btn-ok').off().on('click', function (id) 
 		    {
 		    	$.ajax({
 				    url: '/event/' + $(e.relatedTarget).data('href'),
@@ -84,6 +84,7 @@
 				    success: function(result) {
 				        if (result.status_code == 0)
 				        {
+				        	loadUser();
 				        	refreshPage();
 				        	addAlert("Successfully deleted event.", "success");
 				        }

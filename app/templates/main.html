@@ -7,7 +7,7 @@
 	// this be a global user ref
 	var user;
 
-	safeGet("/me", function (data) { user = data; });
+	loadUser();
 	changePage("static/js-templates/index.html", {});
 </script>
 {% endblock %}
