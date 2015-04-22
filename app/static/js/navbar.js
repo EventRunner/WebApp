@@ -1,3 +1,7 @@
+$("#home-link").click(function() {
+	changePage("/static/js-templates/index.html", {});
+});
+
 $("#profile-link").click(function() {
 	changePage("/static/js-templates/test.html", {});
 });
@@ -5,3 +9,5 @@ $("#profile-link").click(function() {
 $("#discovery-link").click(function() {
 	changePage("/static/js-templates/discovery.html", {});
 });
+
+
