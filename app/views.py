@@ -99,7 +99,13 @@ def dummy():
 
 
 def check_valid_new_event(form):
+<<<<<<< Updated upstream
     str = ""
+=======
+    str =""
+    if 'is_private' not in form:
+        str+="Event not added , you need to specify privacy!\n"
+>>>>>>> Stashed changes
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
     if 'start_time' not in form or 'end_time' not in form:
