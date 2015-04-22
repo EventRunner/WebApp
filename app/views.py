@@ -6,6 +6,8 @@ from models import User, get_user, Event, Task
 from config import SECRET_KEY, CREATE_PIN
 from app import app, db
 import os, json
+from dateutil import parser
+import datetime
 
 #####################################
 # Regular pages
@@ -31,6 +33,12 @@ def profile_id(user_id):
         flash("Invalid page.")
         return redirect(url_for('index'))
     return render_template('profile.html', user=current_user, target=user)
+
+
+def unix_time(dt):
+    epoch = datetime.datetime.utcfromtimestamp(0)
+    delta = dt - epoch
+    return delta.total_seconds()
 
 # test routes
 #####################################
@@ -92,29 +100,34 @@ def dummy():
 
 def check_valid_new_event(form):
     str = ""
-    # if 'is_private' not in form:
-    #     str+="Event not added , you need to specify privacy!\n"
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Event not added , (Jon is Garbage) you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
         str+="Event not added , you need to specify the time!\n"
-    start_time = form['start_time']
-    end_time = form['end_time']
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
     if start_time > end_time:
         str+="Event not added , start time after end time!\n"
-    if 'manager_id' not in form:
-        str+="Event not added , no manager id!\n"
-    if not User.query.filter_by(id=form['manager_id']).first():
-        str+="Event not added , manager does not exist!\n"
-    if 'user_list' not in form:
-        str+="Event not added , no user list!\n"
-    if 'task_list' not in form:
-        str+="Event not added , no task list!\n"
+
+    if 'volunteers' in form:
+        list = form['volunteers']
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
     if str != "":
         return str
+
+    #name description start time end time,
     return None
-
-
 
 
 
@@ -126,21 +139,24 @@ def event_list():
         return json_out({"status_code": 0, "events": events})
     if request.method == "POST":
         status = check_valid_new_event(request.form)
-        if not status:
+        if status:
             return json_out({"status_code": 2,"status_msg":status})
         form = request.form
         is_private = True if 'is_private' in form else False
-        e = Event(is_private=is_private,description=form['description']
-                  ,name=form['name'],start_time=form['start_time']
-                  ,end_time = form['end_time'],manager_id=current_user.id
-                  ,user_list=[], task_list =[])
+        start_time = parser.parse(form['start_time'])
+        end_time = parser.parse(form['end_time'])
+        volunteers = []
+        if 'volunteers' in form:
+            list = form['volunteers']
+            volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
+
+        e = Event(is_private=is_private,description= form['description']
+                  ,name=form['name'],start_time= start_time
+                  ,end_time = end_time,manager_id=current_user.id
+                  ,volunteers=volunteers, tasks =[])
         db.session.add(e)
         db.session.commit()
-        flash("Event "+e.name+" registered.")
         return json_out({"status_code": 0})
-
-
-
 
 @app.route('/event/<event_id>', methods=["GET", "PUT"])
 @login_required
@@ -153,8 +169,8 @@ def event(event_id):
         result = {"status_code": 0,
                   "id": e.id,
                   "name": e.name,
-                  "start_time": e.start_time,
-                  "end_time": e.end_time,
+                  "start_time": "" if not e.start_time else unix_time(e.start_time),
+                  "end_time": "" if not e.end_time else unix_time(e.end_time),
                   "is_private": e.is_private,
                   "manager_id": e.manager_id,
                   "task_list": map(lambda t: t.id, e.tasks),
