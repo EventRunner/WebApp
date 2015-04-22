@@ -113,7 +113,7 @@ def check_valid_new_event(form):
         str+="Event not added , start time after end time!\n"
 
     if 'user_list' in form:
-        list = form['user_list']
+        json.loads(form['user_list'])
         for vol in list:
             if not vol.isdigit:
                 str+="User "+vol+" is not valid user! \n"
@@ -144,7 +144,7 @@ def event_list():
         end_time = parser.parse(form['end_time'])
         volunteers = []
         if 'user_list' in form:
-            list = form['user_list']
+            list = json.loads(form['user_list'])
             volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
 
         e = Event(is_private=is_private,description= form['description']
@@ -184,61 +184,88 @@ def event(event_id):
         db.session.commit()
         return json_out({"status_code": 0})
 
+
+
 def check_valid_new_task(form):
+    str = ""
     if 'name' not in form:
-        flash("Task not added , you need to specify the name!")
-        return False
+        str+="Task not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Task not added , you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
-        flash("Task not added , you need to specify the time!")
-        return False
-    start_time = form['start_time']
-    end_time = form['end_time']
+        str+="Task not added , you need to specify the time!\n"
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
     if start_time > end_time:
-        flash("Task not added , start time after end time!")
-        return False
+        str+="Task not added , start time after end time!\n"
+
     if 'event_id' not in form:
-        flash("Task not added , no event id!")
-        return False
-    if not Event.query.filter_by(id=form['Event_id']).first():
-        flash("Task not added , event does not exist!")
-        return False
-    if 'volunteers' not in form:
-        flash("Task not added , no volunteers list!")
-        return False
-    return True
+        str+="Task not added , no event specified time!\n"
 
+    if not form['event_id'].isdigit:
+        str+="Task not added , invalid event id!\n"
 
-# @app.route('/task/<event_id>', methods=["GET", "POST"])
-# def task_list(event_id):
-#     if request.method == "GET":
-#         tasks = [{"id": t.id, "name": t.name}
-#                 for t in Task.query.filter_by(event_id=event_id).order_by(Event.start_time.desc()).all()]
-#         return json_out({"status_code": 0, "events": tasks})
-#     if request.method == "POST":
-#         if not check_valid_new_task(request.form):
-#             return json_out({"status_code": 2})
-#         form = request.form
-#         t = Task(description=form['description'],location=form['location']
-#                   ,name=form['name'],start_time=form['start_time']
-#                   ,end_time = form['end_time'],event_id=form['event_id']
-#                   ,volunteers =form['volunteers'])
-#         db.session.add(t)
-#         db.session.commit()
-#         flash("Task "+t.name+" Added.")
-#         return json_out({"status_code": 0})
+    e = Event.query.filter_by(id=int(form['event_id'])).first()
+    if not e:
+        str+="Task not added , no such event!\n"
+
+    if 'user_list' in form:
+        json.loads(form['user_list'])
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
+    if str != "":
+        return str
+
+    return None
+
+@app.route('/task', methods=["GET", "POST"])
+def create_task():
+     if request.method == "POST":
+         status = check_valid_new_task(request.form)
+         if status:
+            return json_out({"status_code": 2,"status_msg":status})
+         form = request.form
+
+         location = ""
+         if 'location' in form:
+             location = form['location']
+         start_time = parser.parse(form['start_time'])
+         end_time = parser.parse(form['end_time'])
+         event_id = int(form['event_id'])
+         user_list = []
+         if 'user_list' in form:
+             users = json.loads(form['user_list'])
+             user_list = [User.query.filter_by(id=int(x)).first() for x in users]
+
+         t = Task(description=form['description'],location=location
+                   ,name=form['name'],start_time=start_time
+                   ,end_time = end_time,event_id=event_id
+                   ,volunteers =user_list)
+         db.session.add(t)
+         db.session.commit()
+         return json_out({"status_code": 0})
 
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
 def task(task_id):
     if request.method == "GET":
         t = Task.query.filter_by(id=task_id).first()
+
         if not t:
             return json_out({"status_code": 2})  # event doesn't exist
         result = {"status_code": 0,
                   "id": t.id,
                   "name": t.name,
-                  "start_time": t.start_time,
-                  "end_time": t.end_time,
+                  "start_time": "" if not t.start_time else unix_time(t.start_time),
+                  "end_time": "" if not t.end_time else unix_time(t.end_time),
                   "location": t.location,
                   "description": t.description,
                   "event_id": t.event_id,
