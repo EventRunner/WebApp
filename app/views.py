@@ -164,10 +164,18 @@ def event(event_id):
 
     elif request.method == "PUT":
         for key in request.form:
-            if key not in e.__dict__:
+            if key in e.__dict__:
+                setattr(e, key, request.form[key])
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                    e.volunteers = [get_user(id=i) for i in L]
+                except:
+                    return json_out({"status_code": 2,
+                                     "status_msg": "Not a valid "+key})
+            else:
                 return json_out({"status_code": 2,
                                  "status_msg": "Not a valid field: "+key})
-            setattr(e, key, request.form[key])
         db.session.commit()
         return json_out({"status_code": 0})
 
@@ -217,10 +225,11 @@ def check_valid_new_task(form):
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
 def task(task_id):
+    t = Task.query.filter_by(id=task_id).first()
+    if not t:
+        return json_out({"status_code": 2})  # event doesn't exist
+
     if request.method == "GET":
-        t = Task.query.filter_by(id=task_id).first()
-        if not t:
-            return json_out({"status_code": 2})  # event doesn't exist
         result = {"status_code": 0,
                   "id": t.id,
                   "name": t.name,
@@ -234,7 +243,13 @@ def task(task_id):
         return json_out(result)
 
     elif request.method == "PUT":
-        pass
+        for key in request.form:
+            if key not in t.__dict__:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+            setattr(t, key, request.form[key])
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 def get_user_info(user_id):
     u = User.query.filter_by(id=user_id).first()
@@ -257,12 +272,20 @@ def me():
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
-    if request.method == "PUT":
-        pass
-
-    elif request.method == "GET":
+    if request.method == "GET":
         return get_user_info(user_id)
 
+    elif request.method == "PUT":
+        u = User.query.filter_by(id=user_id).first()
+        if not u:
+            return json_out({"status_code": 2})  # user doesn't exist
+        for key in request.form:
+            if key not in u.__dict__:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+            setattr(u, key, request.form[key])
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 #####################################
 # User login stuff
