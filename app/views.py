@@ -40,7 +40,7 @@ def test_task():
 	return render_template('test-task.html', user=current_user)
 
 #####################################
-# public API 
+# public API
 #####################################
 
 """ helper function for loading dummy data from a file """
@@ -145,10 +145,11 @@ def event_list():
 @app.route('/event/<event_id>', methods=["GET", "PUT"])
 @login_required
 def event(event_id):
+    e = Event.query.filter_by(id=event_id).first()
+    if not e:
+        return json_out({"status_code": 2})  # event doesn't exist
+
     if request.method == "GET":
-        e = Event.query.filter_by(id=event_id).first()
-        if not e:
-            return json_out({"status_code": 2})  # event doesn't exist
         result = {"status_code": 0,
                   "id": e.id,
                   "name": e.name,
@@ -161,9 +162,9 @@ def event(event_id):
                  }
         return json_out(result)
 
-
     elif request.method == "PUT":
-        pass
+        for key in request.form:
+            pass
 
 
 def check_valid_new_task(form):
@@ -208,9 +209,6 @@ def check_valid_new_task(form):
 #         db.session.commit()
 #         flash("Task "+t.name+" Added.")
 #         return json_out({"status_code": 0})
-
- 
-
 
 @app.route('/task/<task_id>', methods=["GET", "PUT"])
 @login_required
