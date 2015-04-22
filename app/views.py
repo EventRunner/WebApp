@@ -246,7 +246,7 @@ def check_valid_new_task(form):
 #         flash("Task "+t.name+" Added.")
 #         return json_out({"status_code": 0})
 
-@app.route('/task/<task_id>', methods=["GET", "PUT"])
+@app.route('/task/<task_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def task(task_id):
     t = Task.query.filter_by(id=task_id).first()
@@ -270,9 +270,14 @@ def task(task_id):
         for key in request.form:
             if key in t.__dict__:
                 setattr(t, key, request.form[key])
-            # TODO: user_list
+            # TODO qfan: user_list
             else:
                 return json_out_err("Not a valid field: "+key)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(t)
         db.session.commit()
         return json_out({"status_code": 0})
 
