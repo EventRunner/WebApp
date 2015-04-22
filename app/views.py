@@ -239,15 +239,14 @@ def get_user_info(user_id):
     result = {"status_code": 0,
               "id": u.id,
               "username": u.name,
-              "managing_events": map(lambda e: e.id, u.managing_events if u.managing_events else []),
-              "volunteering_events": map(lambda e: e.id, u.volunteering_events if u.managing_events else [])
+              "managing_events": map(lambda e: e.id, u.managing_events),
+              "volunteering_events": map(lambda e: e.id, u.volunteering_events)
              }
     return json_out(result)
 
 @app.route('/me', methods=["GET"])
 @login_required
 def me():
-    print "AsdfASDFASDFASDF"
     return get_user_info(current_user.id)
 
 
