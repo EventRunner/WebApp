@@ -155,7 +155,7 @@ def event_list():
         db.session.commit()
         return json_out({"status_code": 0})
 
-@app.route('/event/<event_id>', methods=["GET", "PUT"])
+@app.route('/event/<event_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def event(event_id):
     e = Event.query.filter_by(id=event_id).first()
@@ -177,13 +177,31 @@ def event(event_id):
 
     elif request.method == "PUT":
         for key in request.form:
-            if key not in e.__dict__:
-                return json_out({"status_code": 2,
-                                 "status_msg": "Not a valid field: "+key})
-            setattr(e, key, request.form[key])
+            if key in e.__dict__:
+                setattr(e, key, request.form[key])
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                except:
+                    return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                e.volunteers = volunteers
+            else:
+                return json_out_err("Not a valid field: "+key)
         db.session.commit()
         return json_out({"status_code": 0})
 
+    elif request.method == "DELETE":
+        db.session.delete(e)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+
+def json_out_err(msg):
+    return json_out({"status_code": 2, "status_msg": msg})
 
 
 def check_valid_new_task(form):
@@ -253,14 +271,14 @@ def create_task():
          db.session.commit()
          return json_out({"status_code": 0})
 
-@app.route('/task/<task_id>', methods=["GET", "PUT"])
+@app.route('/task/<task_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def task(task_id):
-    if request.method == "GET":
-        t = Task.query.filter_by(id=task_id).first()
+    t = Task.query.filter_by(id=task_id).first()
+    if not t:
+        return json_out({"status_code": 2})  # event doesn't exist
 
-        if not t:
-            return json_out({"status_code": 2})  # event doesn't exist
+    if request.method == "GET":
         result = {"status_code": 0,
                   "id": t.id,
                   "name": t.name,
@@ -274,7 +292,19 @@ def task(task_id):
         return json_out(result)
 
     elif request.method == "PUT":
-        pass
+        for key in request.form:
+            if key in t.__dict__:
+                setattr(t, key, request.form[key])
+            # TODO qfan: user_list
+            else:
+                return json_out_err("Not a valid field: "+key)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(t)
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 def get_user_info(user_id):
     u = User.query.filter_by(id=user_id).first()
@@ -297,12 +327,20 @@ def me():
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
-    if request.method == "PUT":
-        pass
-
-    elif request.method == "GET":
+    if request.method == "GET":
         return get_user_info(user_id)
 
+    elif request.method == "PUT":
+        u = User.query.filter_by(id=user_id).first()
+        if not u:
+            return json_out({"status_code": 2})  # user doesn't exist
+        for key in request.form:
+            if key not in u.__dict__:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+            setattr(u, key, request.form[key])
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 #####################################
 # User login stuff
