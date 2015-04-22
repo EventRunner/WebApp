@@ -43,6 +43,7 @@
 					function (event_data) {
 						$("#managing-events").append("<li class='list-group-item'>" +
 							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
+							"<a href='#' style='float:right' data-href='" + event_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a>" +
 						"</li>");
 				});
 			}
@@ -66,10 +67,34 @@
 					function (event_data) {
 						$("#volunteering-events").append("<li class='list-group-item'>" +
 							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
+							"<a href='#' style='float:right;' data-href='" + event_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a>" +
 						"</li>");
 				});
 			}
 		);
 	}
+
+	// handle when the delete button is pressed
+		$('#confirm-delete').on('show.bs.modal', function(e) {
+		    $(this).find('.btn-ok').on('click', function (id) 
+		    {
+		    	$.ajax({
+				    url: '/event/' + $(e.relatedTarget).data('href'),
+				    type: 'DELETE',
+				    success: function(result) {
+				        if (result.status_code == 0)
+				        {
+				        	refreshPage();
+				        	addAlert("Successfully deleted event.", "success");
+				        }
+				        else
+				        {
+				        	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
+				        }
+				    }
+				});
+		    });
+		});
 		
 </script>

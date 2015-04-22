@@ -49,6 +49,32 @@
 			$("#event-body").html("<p> No event description... </p>");
 		}
 
+		// add delete button
+		$("#event-body").append("<hr/> <button style='float:right;' class='btn btn-danger' class='btn btn-default' data-href='" + data.id + "' data-toggle='modal' data-target='#confirm-delete'> Delete this Event </button>");
+
+		// handle when the delete button is pressed
+		$('#confirm-delete').on('show.bs.modal', function(e) {
+		    $(this).find('.btn-ok').on('click', function (e) 
+		    {
+		    	$.ajax({
+				    url: '/event/' + data.id,
+				    type: 'DELETE',
+				    success: function(result) {
+				        if (result.status_code == 0)
+				        {
+				        	backPage();
+				        	addAlert("Successfully deleted event.", "success");
+				        }
+				        else
+				        {
+				        	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
+				        }
+				    }
+				});
+		    });
+		});
+
 		// tasks
 		data.task_list.map(function (task_id, index) {
 			// get task data

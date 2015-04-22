@@ -3,11 +3,22 @@ var app_history = [];
 /* 
  * displays an alert in the shared alert area
  */
-function addAlert (message)
+function addAlert (message, type)
 {
+	var color = "alert-info";
+	if (type != undefined)
+	{
+		if (type == "success")
+		{
+			color = "alert-success";
+		} else if (type == "error")
+		{
+			color = "alert-error";
+		}
+	}
 	$("#alerts-area").
 		prepend("<div class='row'> <div class='col'>" +
-			"<div class='alert alert-info'>" +
+			"<div class='alert " + color + "'>" +
 			"<button type='button' class='close'" + 
 			"data-dismiss='alert' aria-hidden='true'>" +
 			"x </button> <p>" + message + "</p>" +

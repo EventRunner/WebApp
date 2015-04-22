@@ -88,6 +88,24 @@
 		</nav>
 	</div>
 
+	<!-- confirm action modal --> 
+	<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                Confirm Action	           
+	            </div>
+	            <div class="modal-body">
+	                This action is irreversible. Please confirm you'd like to do this.
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	                <a class="btn btn-danger btn-ok">Confirm</a>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
     <hr>
     
     {% block content %}{% endblock %}

@@ -156,7 +156,8 @@ def event(event_id):
                   "is_private": e.is_private,
                   "manager_id": e.manager_id,
                   "task_list": map(lambda t: t.id, e.tasks),
-                  "user_list": map(lambda u: u.id, e.volunteers)
+                  "user_list": map(lambda u: u.id, e.volunteers),
+                  "description": e.description
                  }
         return json_out(result)
 
