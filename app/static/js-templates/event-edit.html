@@ -5,28 +5,28 @@
 -->
 
 <script type="text/javascript">
-	function submitForm()
-	{
-		$.post("/event", $("#new_event_form").serialize())
-			.done(function (data) 
-				{
-					if (data.status_code == 0)
-					{
-						// a-okay
-						backPage();
-						addAlert("Successfully added your event", "success");
-					}
-					else 
-					{
-						addAlert("There was an error with your submission. Please" +
-							" check your form data and try again", "error");
-					}
+    function submitForm()
+    {
+        $.post("/event", $("#new_event_form").serialize())
+                .done(function (data)
+                {
+                    if (data.status_code == 0)
+                    {
+                        // a-okay
+                        backPage();
+                        addAlert("Successfully added your event", "success");
+                    }
+                    else
+                    {
+                        addAlert("There was an error with your submission. Please" +
+                                " check your form data and try again", "error");
+                    }
 
-					return false;
-				});
-	}
+                    return false;
+                });
+    }
+
 </script>
-
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form method="POST" action="/event" id="new_event_form" class="form-horizontal">
@@ -44,15 +44,27 @@
 		  </div>
 		  <div class="form-group">
 		    <label for="starttime" class="col-sm-2 control-label">Start Time</label>
-		    <div class="col-sm-10">
-		      <input type="datetime" class="form-control" id="starttime" name="start_time" placeholder="">
-		    </div>
+            <div id="date-picker-start" class="input-group date">
+                <input type="text" class="form-control" id="starttime" name="start_time">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-th"></i>
+                    </span>
+            </div>
+            <script>
+            $('#date-picker-start').datetimepicker({});
+            </script>
 		  </div>
 		  <div class="form-group">
 		    <label for="endtime" class="col-sm-2 control-label">End Time</label>
-		    <div class="col-sm-10">
-		      <input type="datetime" class="form-control" id="endtime" name="end_time" placeholder="">
-		    </div>
+            <div id="date-picker-end" class="input-group date">
+                <input type="text" class="form-control" id="endtime" name="end_time">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-th"></i>
+                    </span>
+            </div>
+            <script>
+            $('#date-picker-end').datetimepicker({});
+            </script>
 		  </div>
 		  <div class="form-group">
 		    <div class="col-sm-offset-2 col-sm-10">
