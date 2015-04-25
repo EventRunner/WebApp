@@ -183,6 +183,7 @@ def event(event_id):
             elif key == "user_list":
                 try:
                     L = json.loads(request.form[key])
+                    assert(type(L) == list)
                 except:
                     return json_out_err("Not a valid "+key)
                 volunteers = [get_user(id=i) for i in L]
@@ -296,7 +297,17 @@ def task(task_id):
         for key in request.form:
             if key in t.__dict__:
                 setattr(t, key, request.form[key])
-            # TODO qfan: user_list
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                    assert(type(L) == list)
+                except:
+                    return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                t.volunteers = volunteers
             else:
                 return json_out_err("Not a valid field: "+key)
         db.session.commit()
