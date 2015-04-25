@@ -347,10 +347,22 @@ def user(user_id):
         if not u:
             return json_out({"status_code": 2})  # user doesn't exist
         for key in request.form:
-            if key not in u.__dict__:
+            if key in u.__dict__:
+                setattr(u, key, request.form[key])
+            elif key in ["volunteering_events", "managing_events"]:
+                try:
+                    L = json.loads(request.form[key])
+                    assert(type(L) == list)
+                except:
+                    return json_out_err("Not a valid "+key)
+                events = [Event.query.filter_by(id=i).first() for i in L]
+                if None in events:
+                    idd = L[events.index(None)]
+                    return json_out_err("Not a valid event_id: %d" % idd)
+                setattr(u, key, events)
+            else:
                 return json_out({"status_code": 2,
                                  "status_msg": "Not a valid field: "+key})
-            setattr(u, key, request.form[key])
         db.session.commit()
         return json_out({"status_code": 0})
 
