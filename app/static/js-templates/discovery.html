@@ -13,7 +13,7 @@
 
 <script>
 	safeGet("/event", function (data) {
-			var volunteering_events = data["events"].slice(0,20);
+			var volunteering_events = data["events"];
 
 			// check that we got appropriate data
 			if (volunteering_events != undefined 
