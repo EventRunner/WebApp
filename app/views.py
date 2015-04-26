@@ -97,7 +97,6 @@ def dummy():
 
     return "Dummy data successfully created/verified"
 
-
 def check_valid_new_event(form):
     str = ""
     if 'name' not in form:
@@ -179,7 +178,16 @@ def event(event_id):
     elif request.method == "PUT":
         for key in request.form:
             if key in e.__dict__:
-                setattr(e, key, request.form[key])
+                if key == "start_time":
+                    start_time = parser.parse(request.form['start_time'])
+                    setattr(e, "start_time", start_time)
+                elif key == "end_time":
+                    end_time = parser.parse(request.form['end_time'])
+                    setattr(e, "end_time", end_time)
+                elif key =="is_private":
+                    setattr(e, "is_private", True)
+                elif key == "name" or key == "description":
+                    setattr(e, key, request.form[key])
             elif key == "user_list":
                 try:
                     L = json.loads(request.form[key])
@@ -295,7 +303,14 @@ def task(task_id):
     elif request.method == "PUT":
         for key in request.form:
             if key in t.__dict__:
-                setattr(t, key, request.form[key])
+                if key == "start_time":
+                    start_time = parser.parse(request.form['start_time'])
+                    setattr(t, "start_time", start_time)
+                elif key == "end_time":
+                    end_time = parser.parse(request.form['end_time'])
+                    setattr(t, "end_time", end_time)
+                elif key == "name" or key == "description" or key == "location":
+                    setattr(t, key, request.form[key])
             # TODO qfan: user_list
             else:
                 return json_out_err("Not a valid field: "+key)

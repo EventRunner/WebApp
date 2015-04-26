@@ -130,3 +130,17 @@ function goToEvent(id)
 {
 	changePage("static/js-templates/event.html", { id : id });
 }
+
+function dateToString(date)
+{
+	var day = date.getDay();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+
+	return day + "/" + month + "/" + year;
+}
+
+function bindList(listTarget, searchInput)
+{
+	$("#" + listTarget).btsListFilter("#" + searchInput, {itemChild: 'span'});
+}

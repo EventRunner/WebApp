@@ -17,16 +17,30 @@
 <!-- tasks panel -->
 <div class="panel panel-default">
 	<div class="panel-heading">
-		Tasks
+		Tasks <a href="#"> <span style='float:right' onclick="add_task()" class='glyphicon glyphicon-plus'></span></a>
 	</div>
 	 <ul class="list-group" id="task-list">
  	</ul>
 </div>
 
 <script type="text/javascript">
+	function add_task()
+	{
+		changePage('/static/js-templates/task-edit.html', {event_id: event_id, is_modify : false});
+	}
+
+	function edit_event()
+	{
+		changePage("/static/js-templates/event-edit.html", {event_id : event_id, is_modify: true});
+	}
+
+	var event_id;
 	safeGet("/event/" + {{id}}, function (data) {
 		$("#event-title").html(data.name);
 		
+		// store id
+		event_id = data.id;
+
 		// tag with glyphicon if open
 		if (data.is_private) 
 		{
@@ -50,7 +64,10 @@
 		}
 
 		// add delete button
-		$("#event-body").append("<hr/> <button style='float:right;' class='btn btn-danger' class='btn btn-default' data-href='" + data.id + "' data-toggle='modal' data-target='#confirm-delete'> Delete this Event </button>");
+		$("#event-body").append("<hr/> <button style='float:right;' class='btn btn-danger' data-href='" + data.id + "' data-toggle='modal' data-target='#confirm-delete'> Delete this Event </button>");
+
+		// add edit button
+		$("#event-body").append("<button style='float:right; margin-right: 5px;' class='btn btn-default' onclick='edit_event()'> Edit Event </button> ");
 
 		// handle when the delete button is pressed
 		$('#confirm-delete').on('show.bs.modal', function(e) {
@@ -87,8 +104,32 @@
 				// append list item
 				$("#task-list").append("<li class='list-group-item'> " +
 					"<a onclick='goToTask(" + task_data.id +")'>" + task_data.name +
-					"</a> </li>");
+					"</a> <a href='#' style='float:right' data-href='" + task_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a></li>");
 			});
+		});
+
+		// handle when the delete button is pressed
+		$('#confirm-delete').on('show.bs.modal', function(e) {
+		    $(this).find('.btn-ok').off().on('click', function (id) 
+		    {
+		    	$.ajax({
+				    url: '/task/' + $(e.relatedTarget).data('href'),
+				    type: 'DELETE',
+				    success: function(result) {
+				        if (result.status_code == 0)
+				        {
+				        	loadUser();
+				        	refreshPage();
+				        	addAlert("Successfully deleted task.", "success");
+				        }
+				        else
+				        {
+				        	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
+				        }
+				    }
+				});
+		    });
 		});
 	});
 </script>
