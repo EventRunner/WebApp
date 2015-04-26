@@ -1,0 +1,58 @@
+<!-- 
+  event timeline: renders the timeline of all different tasks in an event
+  	
+  requires event id to be in parameters
+ -->
+
+<style>.schedule, .schedule2{
+    width: 400px;
+    background-color: #c0392b;
+    border: #ecf0f1 solid 1px;
+    padding: 3px;
+}
+
+.schedule:hover, .schedule2:hover{
+    background-color: #e74c3c;
+}</style>
+
+<div id="schedule"></div>
+
+<script type="text/javascript">
+
+safeGet("/event/" + {{id}}, function (data) {
+	// tasks
+	tasks = []
+	data.task_list.map(function (task_id, index) {
+		// get task data
+		safeGet("/task/" + task_id, function (task_data) {
+			// append list item
+			start = new Date(task_data.start_time);
+			end = new Date(task_data.end_time);
+			tasks.push({title: task_data.name,
+						start: strftime('%y/%m/%d %H:%M', start),
+						end: strftime('%y/%m/%d %H:%M', end)});
+						
+			if (tasks.length == data.task_list.length) {
+				$('#schedule').graspSchedule({
+					schedules:tasks,
+					options:{
+						css:{
+							schedule:{
+								height:"70px"
+							},
+							zIndexStart:0,
+							marginTop:"0px",
+							marginLeft:"0px",
+						},
+						time:true,//show time on left side
+						insideTime:false,//show time inside
+						timeFormat:'ddd HH:mm',
+						daysFormat:['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+					}
+				});	
+			}
+		});
+	});
+});
+
+</script>

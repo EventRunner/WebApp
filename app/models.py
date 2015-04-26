@@ -39,7 +39,7 @@ class User(db.Model, UserMixin):
 
     # Events where the user is a manager.
     managing_events = db.relationship('Event', backref='manager',
-                                      lazy='dynamic')
+                                      lazy='select')
 
     def __init__(self, name, password, email):
         self.name = name
