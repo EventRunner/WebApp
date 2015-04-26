@@ -6,6 +6,8 @@ from models import User, get_user, Event, Task
 from config import SECRET_KEY, CREATE_PIN
 from app import app, db
 import os, json
+from dateutil import parser
+import datetime
 
 #####################################
 # Regular pages
@@ -31,6 +33,12 @@ def profile_id(user_id):
         flash("Invalid page.")
         return redirect(url_for('index'))
     return render_template('profile.html', user=current_user, target=user)
+
+
+def unix_time(dt):
+    epoch = datetime.datetime.utcfromtimestamp(0)
+    delta = dt - epoch
+    return delta.total_seconds()
 
 # test routes
 #####################################
@@ -92,31 +100,33 @@ def dummy():
 
 def check_valid_new_event(form):
     str = ""
-    # if 'is_private' not in form:
-    #     str+="Event not added , you need to specify privacy!\n"
     if 'name' not in form:
         str+="Event not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Event not added , (Jon is Garbage) you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
         str+="Event not added , you need to specify the time!\n"
-    start_time = form['start_time']
-    end_time = form['end_time']
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
     if start_time > end_time:
         str+="Event not added , start time after end time!\n"
-    if 'manager_id' not in form:
-        str+="Event not added , no manager id!\n"
-    if not User.query.filter_by(id=form['manager_id']).first():
-        str+="Event not added , manager does not exist!\n"
-    if 'user_list' not in form:
-        str+="Event not added , no user list!\n"
-    if 'task_list' not in form:
-        str+="Event not added , no task list!\n"
+
+    if 'user_list' in form:
+        json.loads(form['user_list'])
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
     if str != "":
         return str
+
     return None
-
-
-
-
 
 @app.route('/event', methods=["GET", "POST"])
 def event_list():
@@ -126,23 +136,26 @@ def event_list():
         return json_out({"status_code": 0, "events": events})
     if request.method == "POST":
         status = check_valid_new_event(request.form)
-        if not status:
+        if status:
             return json_out({"status_code": 2,"status_msg":status})
         form = request.form
         is_private = True if 'is_private' in form else False
-        e = Event(is_private=is_private,description=form['description']
-                  ,name=form['name'],start_time=form['start_time']
-                  ,end_time = form['end_time'],manager_id=current_user.id
-                  ,user_list=[], task_list =[])
+        start_time = parser.parse(form['start_time'])
+        end_time = parser.parse(form['end_time'])
+        volunteers = []
+        if 'user_list' in form:
+            list = json.loads(form['user_list'])
+            volunteers = [User.query.filter_by(id=int(x)).first() for x in list]
+
+        e = Event(is_private=is_private,description= form['description']
+                  ,name=form['name'],start_time= start_time
+                  ,end_time = end_time,manager_id=current_user.id
+                  ,volunteers=volunteers, tasks =[])
         db.session.add(e)
         db.session.commit()
-        flash("Event "+e.name+" registered.")
         return json_out({"status_code": 0})
 
-
-
-
-@app.route('/event/<event_id>', methods=["GET", "PUT"])
+@app.route('/event/<event_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def event(event_id):
     e = Event.query.filter_by(id=event_id).first()
@@ -153,75 +166,126 @@ def event(event_id):
         result = {"status_code": 0,
                   "id": e.id,
                   "name": e.name,
-                  "start_time": e.start_time,
-                  "end_time": e.end_time,
+                  "start_time": "" if not e.start_time else unix_time(e.start_time),
+                  "end_time": "" if not e.end_time else unix_time(e.end_time),
                   "is_private": e.is_private,
                   "manager_id": e.manager_id,
                   "task_list": map(lambda t: t.id, e.tasks),
-                  "user_list": map(lambda u: u.id, e.volunteers)
+                  "user_list": map(lambda u: u.id, e.volunteers),
+                  "description": e.description
                  }
         return json_out(result)
 
     elif request.method == "PUT":
         for key in request.form:
-            pass
+            if key in e.__dict__:
+                setattr(e, key, request.form[key])
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                    assert(type(L) == list)
+                except:
+                    return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                e.volunteers = volunteers
+            else:
+                return json_out_err("Not a valid field: "+key)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(e)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+
+def json_out_err(msg):
+    return json_out({"status_code": 2, "status_msg": msg})
 
 
 def check_valid_new_task(form):
+    str = ""
     if 'name' not in form:
-        flash("Task not added , you need to specify the name!")
-        return False
+        str+="Task not added , you need to specify the name!\n"
+    if 'description' not in form:
+        str+="Task not added , you need to specify a description!\n"
     if 'start_time' not in form or 'end_time' not in form:
-        flash("Task not added , you need to specify the time!")
-        return False
-    start_time = form['start_time']
-    end_time = form['end_time']
+        str+="Task not added , you need to specify the time!\n"
+
+    start_time = parser.parse(form['start_time'])
+    end_time = parser.parse(form['end_time'])
     if start_time > end_time:
-        flash("Task not added , start time after end time!")
-        return False
+        str+="Task not added , start time after end time!\n"
+
     if 'event_id' not in form:
-        flash("Task not added , no event id!")
-        return False
-    if not Event.query.filter_by(id=form['Event_id']).first():
-        flash("Task not added , event does not exist!")
-        return False
-    if 'volunteers' not in form:
-        flash("Task not added , no volunteers list!")
-        return False
-    return True
+        str+="Task not added , no event specified time!\n"
 
+    if not form['event_id'].isdigit:
+        str+="Task not added , invalid event id!\n"
 
-# @app.route('/task/<event_id>', methods=["GET", "POST"])
-# def task_list(event_id):
-#     if request.method == "GET":
-#         tasks = [{"id": t.id, "name": t.name}
-#                 for t in Task.query.filter_by(event_id=event_id).order_by(Event.start_time.desc()).all()]
-#         return json_out({"status_code": 0, "events": tasks})
-#     if request.method == "POST":
-#         if not check_valid_new_task(request.form):
-#             return json_out({"status_code": 2})
-#         form = request.form
-#         t = Task(description=form['description'],location=form['location']
-#                   ,name=form['name'],start_time=form['start_time']
-#                   ,end_time = form['end_time'],event_id=form['event_id']
-#                   ,volunteers =form['volunteers'])
-#         db.session.add(t)
-#         db.session.commit()
-#         flash("Task "+t.name+" Added.")
-#         return json_out({"status_code": 0})
+    e = Event.query.filter_by(id=int(form['event_id'])).first()
+    if not e:
+        str+="Task not added , no such event!\n"
 
-@app.route('/task/<task_id>', methods=["GET", "PUT"])
+    if 'user_list' in form:
+        json.loads(form['user_list'])
+        for vol in list:
+            if not vol.isdigit:
+                str+="User "+vol+" is not valid user! \n"
+            else:
+                id = int(vol)
+                u = User.query.filter_by(id=id).first()
+                if not u :
+                    str+="User "+vol+" is not valid user! \n"
+
+    if str != "":
+        return str
+
+    return None
+
+@app.route('/task', methods=["GET", "POST"])
+def create_task():
+     if request.method == "POST":
+         status = check_valid_new_task(request.form)
+         if status:
+            return json_out({"status_code": 2,"status_msg":status})
+         form = request.form
+
+         location = ""
+         if 'location' in form:
+             location = form['location']
+         start_time = parser.parse(form['start_time'])
+         end_time = parser.parse(form['end_time'])
+         event_id = int(form['event_id'])
+         user_list = []
+         if 'user_list' in form:
+             users = json.loads(form['user_list'])
+             user_list = [User.query.filter_by(id=int(x)).first() for x in users]
+
+         t = Task(description=form['description'],location=location
+                   ,name=form['name'],start_time=start_time
+                   ,end_time = end_time,event_id=event_id
+                   ,volunteers =user_list)
+         db.session.add(t)
+         db.session.commit()
+         return json_out({"status_code": 0})
+
+@app.route('/task/<task_id>', methods=["GET", "PUT", "DELETE"])
 @login_required
 def task(task_id):
+    t = Task.query.filter_by(id=task_id).first()
+    if not t:
+        return json_out({"status_code": 2})  # event doesn't exist
+
     if request.method == "GET":
-        t = Task.query.filter_by(id=task_id).first()
-        if not t:
-            return json_out({"status_code": 2})  # event doesn't exist
         result = {"status_code": 0,
                   "id": t.id,
                   "name": t.name,
-                  "start_time": t.start_time,
-                  "end_time": t.end_time,
+                  "start_time": "" if not t.start_time else unix_time(t.start_time),
+                  "end_time": "" if not t.end_time else unix_time(t.end_time),
                   "location": t.location,
                   "description": t.description,
                   "event_id": t.event_id,
@@ -230,7 +294,29 @@ def task(task_id):
         return json_out(result)
 
     elif request.method == "PUT":
-        pass
+        for key in request.form:
+            if key in t.__dict__:
+                setattr(t, key, request.form[key])
+            elif key == "user_list":
+                try:
+                    L = json.loads(request.form[key])
+                    assert(type(L) == list)
+                except:
+                    return json_out_err("Not a valid "+key)
+                volunteers = [get_user(id=i) for i in L]
+                if None in volunteers:
+                    idd = L[volunteers.index(None)]
+                    return json_out_err("Not a valid user_id: %d" % idd)
+                t.volunteers = volunteers
+            else:
+                return json_out_err("Not a valid field: "+key)
+        db.session.commit()
+        return json_out({"status_code": 0})
+
+    elif request.method == "DELETE":
+        db.session.delete(t)
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 def get_user_info(user_id):
     u = User.query.filter_by(id=user_id).first()
@@ -253,12 +339,32 @@ def me():
 @app.route('/user/<user_id>', methods=["GET", "PUT"])
 @login_required
 def user(user_id):
-    if request.method == "PUT":
-        pass
-
-    elif request.method == "GET":
+    if request.method == "GET":
         return get_user_info(user_id)
 
+    elif request.method == "PUT":
+        u = User.query.filter_by(id=user_id).first()
+        if not u:
+            return json_out({"status_code": 2})  # user doesn't exist
+        for key in request.form:
+            if key in u.__dict__:
+                setattr(u, key, request.form[key])
+            elif key in ["volunteering_events", "managing_events"]:
+                try:
+                    L = json.loads(request.form[key])
+                    assert(type(L) == list)
+                except:
+                    return json_out_err("Not a valid "+key)
+                events = [Event.query.filter_by(id=i).first() for i in L]
+                if None in events:
+                    idd = L[events.index(None)]
+                    return json_out_err("Not a valid event_id: %d" % idd)
+                setattr(u, key, events)
+            else:
+                return json_out({"status_code": 2,
+                                 "status_msg": "Not a valid field: "+key})
+        db.session.commit()
+        return json_out({"status_code": 0})
 
 #####################################
 # User login stuff

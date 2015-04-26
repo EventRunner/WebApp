@@ -3,15 +3,34 @@ var app_history = [];
 /* 
  * displays an alert in the shared alert area
  */
-function addAlert (message)
+function addAlert (message, type)
 {
+	var color = "alert-info";
+	if (type != undefined)
+	{
+		if (type == "success")
+		{
+			color = "alert-success";
+		} else if (type == "error")
+		{
+			color = "alert-danger";
+		}
+	}
 	$("#alerts-area").
 		prepend("<div class='row'> <div class='col'>" +
-			"<div class='alert alert-info'>" +
+			"<div class='alert " + color + "'>" +
 			"<button type='button' class='close'" + 
 			"data-dismiss='alert' aria-hidden='true'>" +
 			"x </button> <p>" + message + "</p>" +
 			"</div> </div> </div>");
+}
+
+/*
+ * updates user reference. call after changing user data.
+ */
+function loadUser()
+{
+	safeGet("/me", function (data) { user = data; });
 }
 
 /*
@@ -84,12 +103,21 @@ function backPage()
 }
 
 /*
+ * clears the page of alerts
+ */ 
+function clearAlerts()
+{
+	$("#alerts-area").html("");
+}
+
+/*
  * reload the current page
  */
 function refreshPage()
 {
 	var current_page = app_history.pop();
 	changePage(current_page.page, current_page.parameters);
+	clearAlerts();
 }
 
 /* shortcuts to go to a certain type of page */
