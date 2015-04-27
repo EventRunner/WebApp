@@ -3,7 +3,7 @@ $("#home-link").click(function() {
 });
 
 $("#profile-link").click(function() {
-	changePage("/static/js-templates/test.html", {});
+	changePage("/static/js-templates/index.html", {});
 });
 
 $("#discovery-link").click(function() {
