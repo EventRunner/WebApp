@@ -15,6 +15,7 @@
  </div>
 
 <!-- tasks panel -->
+<!--
 <div class="panel panel-default">
 	<div class="panel-heading">
 		Tasks <a href="#"> <span style='float:right' onclick="add_task()" class='glyphicon glyphicon-plus'></span></a>
@@ -22,13 +23,16 @@
 	 <ul class="list-group" id="task-list">
  	</ul>
 </div>
+-->
 
 <!-- schedule panel -->
 <div class="panel panel-default">
 	<div class="panel-heading">
-		Schedule
+		Schedule <a href="#"> <span style='float:right' onclick="add_task()" class='glyphicon glyphicon-plus'></span></a>
 	</div>
-	<div id="schedule-div">
+	<div class="panel-body"> 
+		<div id="schedule-div"></div>
+	</div>
 </div>
 
 
@@ -71,7 +75,19 @@
 		{
 			$("#event-body").html("<p> No event description... </p>");
 		}
-
+		// handle time
+		if (data.start_time != undefined && data.start_time != "")
+		{
+			var time = new Date(parseInt(data.start_time));
+			$("#event-body").append("<p><b>Start time: </b>" + strftime('%D %H:%M', time) + "</p>");
+		}
+		// handle time
+		if (data.end_time != undefined && data.end_time != "")
+		{
+			var time = new Date(parseInt(data.end_time));
+			$("#event-body").append("<p><b>End time: </b>" + strftime('%D %H:%M', time) + "</p>");
+		}
+		
 		// add delete button
 		$("#event-body").append("<hr/> <button style='float:right;' class='btn btn-danger' data-href='" + data.id + "' data-toggle='modal' data-target='#confirm-delete'> Delete this Event </button>");
 
@@ -106,6 +122,7 @@
 		    });
 		});
 
+		/*
 		// tasks
 		data.task_list.map(function (task_id, index) {
 			// get task data
@@ -116,7 +133,8 @@
 					"</a> <a href='#' style='float:right' data-href='" + task_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a></li>");
 			});
 		});
-
+		*/
+		
 		// handle when the delete button is pressed
 		$('#confirm-delete').on('show.bs.modal', function(e) {
 		    $(this).find('.btn-ok').off().on('click', function (id) 
@@ -151,7 +169,22 @@
 		}
 		src = fn.toString();
 		$('#schedule-div').html(src);
+		
+		setTimeout(function () {
+			var lowest_schedule_pos = 0;
+			$(".schedule").each(function (si)
+			{
+				var top = $(this).offset().top;
+				var height = $(this).height();
 
+				if (top + height > lowest_schedule_pos)
+				{
+					lowest_schedule_pos = top + height;
+				}
+			});
+			
+			$("#schedule-div").css("height", lowest_schedule_pos - $("#schedule-div").offset().top);
+		}, 100);
 	})
 
 </script>
