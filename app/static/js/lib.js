@@ -116,11 +116,11 @@ function changePage(page, parameters) {
 		src = fn.toString();
 		$('#content-div').html(src);
 
-	});
 
-	setTimeout(function () {
-		clearAlerts();
-	}, 3000);
+		setTimeout(function () {
+			clearAlerts();
+		}, 8000);
+	});
 }
 
 /*
@@ -136,10 +136,6 @@ function backPage()
 
 		changePage(last_page.page, last_page.parameters);
 	}
-
-	setTimeout(function () {
-		clearAlerts();
-	}, 3000);
 }
 
 /*
@@ -148,7 +144,6 @@ function backPage()
 function clearAlerts()
 {
 	$("#alerts-area").fadeOut(1000, function () {
-		console.log("finished fading")
 		$("#alerts-area").html("");
 	});
 }

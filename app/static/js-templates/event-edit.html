@@ -5,12 +5,12 @@
 -->
 
 <script type="text/javascript">
-	{% if is_modify != undefined %}
-		var is_modify = {{is_modify}};
+	var is_modify = false;
+	{% if is_modify != undefined && is_modify %}
+		is_modify = {{is_modify}};
 		var default_name, default_description, default_start_time, 
 			default_end_time, default_is_private;
 		
-		console.log("is modify", is_modify);
 		// modification
 		if (is_modify)
 		{
@@ -47,12 +47,12 @@
 				success: 
 					function (data) 
 					{
-						console.log("success!");
 						if (data.status_code == 0)
 						{
 							// a-okay
-							backPage();
 							addAlert("Successfully made this change to your event", "success");
+							loadUser();
+							backPage();
 						}
 						else 
 						{
