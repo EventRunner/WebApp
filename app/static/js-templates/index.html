@@ -18,10 +18,33 @@
 </div>
 
 <script type="text/javascript">
-	function removeVolunteeringEvent(id)
-	{
-		// TODO
-	}
+    function unsubscribe(id)
+    {
+        var events = user.volunteering_events;
+        var index = events.indexOf(id)
+        if (index > -1) {
+            events.splice(index, 1);
+        }
+        $.ajax({
+            url: '/user/' + user.id,
+            type: 'PUT',
+            data: {"volunteering_events": JSON.stringify(events)},
+            success: function(result) {
+                console.log("Hi")
+                if (result.status_code == 0)
+                {
+                    loadUser();
+                    refreshPage();
+                    addAlert("Successfully unsubscribed from event.", "success");
+                }
+                else
+                {
+                    addAlert("There was an issue with your request..." +
+                            " Please try again.", "error");
+                }
+            }
+        });
+    }
 
 	var managing_events = user.managing_events;
 	var volunteering_events = user.volunteering_events;
@@ -67,7 +90,8 @@
 					function (event_data) {
 						$("#volunteering-events").append("<li class='list-group-item'>" +
 							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
-							"<a href='#' style='float:right;' data-href='" + event_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a>" +
+							"<a href='#' style='float:right;'  onclick='unsubscribe(" +event_data.id + ")'" +
+                             " data-toggle='modal'> <span aria-hidden='true'>&times;</span></a>" +
 						"</li>");
 				});
 			}
