@@ -93,7 +93,7 @@
 	}
 
 	var task_id, task;
-	safeGet("/task/" + {{ id }}, 
+	safeGet("/task/" + {{ id }},
 		function (task_data) {
 			// populate page 
 			task_id = task_data.id; 

@@ -31,10 +31,13 @@ safeGet("/event/" + {{id}}, function (data) {
 			tasks.push({title: task_data.name,
 						start: strftime('%y/%m/%d %H:%M', start),
 						end: strftime('%y/%m/%d %H:%M', end),
-						onclick: "goToTask(" + task_data.id +")"
+						onclick: "goToTask(" + task_data.id +")",
+						users: task_data.user_list
 					   });
 						
 			if (tasks.length == data.task_list.length) {
+				tasks = tasks.filter(function(e){return -1 != e.users.indexOf(/*CURRENT USER ID*/1)});
+				
 				$('#schedule').graspSchedule({
 					schedules:tasks,
 					options:{
