@@ -19,20 +19,17 @@
 				default_name = event.name;
 				default_description = event.description;
 
-				default_start_time = new Date();
-				default_start_time.setMilliseconds(event.start_time);
-
-				default_end_time = new Date();
-				default_end_time.setMilliseconds(event.end_time);
+				default_start_time = new Date(event.start_time * 1000);
+				default_end_time = new Date(event.end_time * 1000);
 
 				default_is_private = event.is_private;
 
 				$("#inputname").val(default_name);
 				$("#inputdescription").val(default_description);
-				$("#starttime").val(dateToString(default_start_time));
-				$("#endtime").val(dateToString(default_end_time));
+				$("#starttime").val(strftime('%m/%d/%Y', default_start_time));
+				$("#endtime").val(strftime('%m/%d/%Y', default_end_time));
 				$("#isprivate").prop("checked", default_is_private);
-				$("#new_event_form").append("<input type='hidden' name='id' value=" + event_id + "/>");
+				$("#new_event_form").append("<input type='hidden' name='id' value='" + event_id + "' />");
 			});
 		} 
 	{% endif %}
@@ -84,24 +81,29 @@
 		  </div>
 		  <div class="form-group">
 		    <label for="starttime" class="col-sm-2 control-label">Start Time</label>
-            <div id="date-picker-start" class="input-group date">
-                <input type="text" class="form-control" id="starttime" name="start_time">
-                    <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-th"></i>
-                    </span>
-            </div>
+		    <div class="col-sm-10">
+		    	<div id="date-picker-start" class="input-group date">
+	                <input type="text" class="form-control" id="starttime" name="start_time">
+	                    <span class="input-group-addon">
+	                        <i class="glyphicon glyphicon-th"></i>
+	                    </span>
+	            </div>
+		    </div>
+            
             <script>
             $('#date-picker-start').datetimepicker({});
             </script>
 		  </div>
 		  <div class="form-group">
 		    <label for="endtime" class="col-sm-2 control-label">End Time</label>
-            <div id="date-picker-end" class="input-group date">
-                <input type="text" class="form-control" id="endtime" name="end_time">
-                    <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-th"></i>
-                    </span>
-            </div>
+		    <div class="col-sm-10">
+		    	<div id="date-picker-end" class="input-group date">
+	                <input type="text" class="form-control" id="endtime" name="end_time">
+	                    <span class="input-group-addon">
+	                        <i class="glyphicon glyphicon-th"></i>
+	                    </span>
+	            </div>
+		    </div>
             <script>
             $('#date-picker-end').datetimepicker({});
             </script>

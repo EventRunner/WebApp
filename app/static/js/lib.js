@@ -43,8 +43,18 @@ function loadUser()
  */
 function safeGet (path, success, error, params)
 {
-	$.getJSON(path, params)
-		.done(function (data) {
+	var data = params == undefined ? {} : params;
+
+	function errorHandler (data)
+	{
+		addAlert("Something is wrong with the server right now... Try again later",
+				"error");	
+	}
+
+	function successHandler (data) 
+	{
+		if ("status_code" in data)
+		{
 			switch (data.status_code)
 			{
 				// no errors
@@ -65,6 +75,22 @@ function safeGet (path, success, error, params)
 					}
 					break;
 			}
+		}
+		else 
+		{
+			// API error or server down
+			errorHandler(data);
+		}
+	}
+
+	$.ajax({
+			url: path,
+			data: params,
+			datatype: 'json',
+			success : successHandler,
+			error: errorHandler,
+			timeout: 5000,
+			cache: false
 		});
 }
 /*
