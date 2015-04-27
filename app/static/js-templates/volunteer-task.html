@@ -19,10 +19,6 @@
 			<dt>End</dt>
 			<dd id="to"></dd>
 		</dl>
-
-		<hr/>
-
-		<button style='float:right;' class='btn btn-default' onclick='edit_task()'> Edit Task </button>
 	</div>
 </div>
 
@@ -35,22 +31,7 @@
 	</ul>
 </div>
 
-<div class="panel panel-default">
-	<div class="panel-heading">
-		Add a User
-	</div>
-	<div class="panel-body">
-		<input class="form-control" type="text" id="user-list-filter"/>
-	</div>
-	<ul class="list-group" id="possible-user-list">
-	</ul>
-</div>
-
 <script type="text/javascript">
-	function edit_task()
-	{
-		changePage("/static/js-templates/task-edit.html", {is_modify: true, task_id: task_id});
-	}
 
 	function addUser(id)
 	{

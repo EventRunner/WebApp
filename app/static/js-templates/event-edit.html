@@ -5,28 +5,68 @@
 -->
 
 <script type="text/javascript">
-    function submitForm()
-    {
-        $.post("/event", $("#new_event_form").serialize())
-                .done(function (data)
-                {
-                    if (data.status_code == 0)
-                    {
-                        // a-okay
-                        backPage();
-                        addAlert("Successfully added your event", "success");
-                    }
-                    else
-                    {
-                        addAlert("There was an error with your submission. Please" +
-                                " check your form data and try again", "error");
-                    }
+	{% if is_modify != undefined %}
+		var is_modify = {{is_modify != undefined && is_modify}};
+		var default_name, default_description, default_start_time, 
+			default_end_time, default_is_private;
+		
+		// modification
+		if (is_modify)
+		{
+			var event_id = {{event_id}};
 
-                    return false;
-                });
-    }
+			safeGet("/event/" + event_id, function (event) {
+				default_name = event.name;
+				default_description = event.description;
 
+				default_start_time = new Date();
+				default_start_time.setMilliseconds(event.start_time);
+
+				default_end_time = new Date();
+				default_end_time.setMilliseconds(event.end_time);
+
+				default_is_private = event.is_private;
+
+				$("#inputname").val(default_name);
+				$("#inputdescription").val(default_description);
+				$("#starttime").val(dateToString(default_start_time));
+				$("#endtime").val(dateToString(default_end_time));
+				$("#isprivate").prop("checked", default_is_private);
+				$("#new_event_form").append("<input type='hidden' name='id' value=" + event_id + "/>");
+			});
+		} 
+	{% endif %}
+
+	function submitForm()
+	{
+		var method = is_modify ? "PUT" : "POST";
+		var url = is_modify ? "/event/" + event_id : "/event";
+		$.ajax(
+			{
+				url: url, 
+				data: $("#new_event_form").serialize(),
+				type: method,
+				success: 
+					function (data) 
+					{
+						if (data.status_code == 0)
+						{
+							// a-okay
+							backPage();
+							addAlert("Successfully made this change to your event", "success");
+						}
+						else 
+						{
+							addAlert("There was an error with your submission. Please" +
+								" check your form data and try again", "error");
+						}
+
+						return false;
+					}
+			});
+	}
 </script>
+
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form method="POST" action="/event" id="new_event_form" class="form-horizontal">
@@ -70,14 +110,14 @@
 		    <div class="col-sm-offset-2 col-sm-10">
 		      <div class="checkbox">
 		        <label>
-		          <input name="is_private" type="checkbox"> Private Event
+		          <input id="isprivate" name="is_private" type="checkbox"> Private Event
 		        </label>
 		      </div>
 		    </div>
 		  </div>
 		  <div class="form-group">
 		    <div class="col-sm-offset-2 col-sm-10">
-				<button class='btn btn-default' onclick='submitForm(); return false;'> Submit the Bitch </button>
+				<button class='btn btn-default' id="submit_button" onclick='submitForm(); return false;'> Submit the Bitch </button>
 		    </div>
 		  </div>
 		</form>

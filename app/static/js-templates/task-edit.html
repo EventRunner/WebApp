@@ -1,0 +1,123 @@
+<!-- 
+	task edit view
+
+	provides form for changing an task 
+-->
+
+<script type="text/javascript">
+	{% if is_modify != undefined %}
+		var is_modify = {{is_modify}};
+		var default_name, default_description, default_start_time, 
+			default_end_time, event_id, task_id, default_location;
+		
+		// modification
+		{% if task_id != undefined %}
+			if (is_modify)
+			{
+				task_id = {{task_id}};
+
+				safeGet("/task/" + task_id, function (task) {
+					default_name = task.name;
+					default_description = task.description;
+
+					default_start_time = new Date();
+					default_start_time.setMilliseconds(task.start_time);
+
+					default_end_time = new Date();
+					default_end_time.setMilliseconds(task.end_time);
+
+					default_location = task.location;
+
+					event_id = task.event_id;
+
+					$("#inputname").val(default_name);
+					$("#inputdescription").val(default_description);
+					$("#starttime").val(dateToString(default_start_time));
+					$("#endtime").val(dateToString(default_end_time));
+					$("#inputlocation").val(default_location);
+					$("#task_form").append("<input type='hidden' name='event_id' value='" + event_id + "'' />");
+				});
+			} 
+		{% endif %}
+		
+		{% if event_id != undefined %}
+			if (!is_modify)
+			{
+				event_id = {{event_id}};
+				$("#task_form").append("<input type='hidden' name='event_id' value='" + event_id + "' />");
+			}
+		{% endif %}
+	{% endif %}
+
+	function submitForm()
+	{
+		var method = is_modify ? "PUT" : "POST";
+		var url = is_modify ? "/task/" + task_id : "/task";
+		$.ajax(
+			{
+				url: url, 
+				data: $("#task_form").serialize(),
+				type: method,
+				success: 
+					function (data) 
+					{
+						if (data.status_code == 0)
+						{
+							// a-okay
+							backPage();
+							addAlert("Successfully made this change to your task", "success");
+						}
+						else 
+						{
+							addAlert("There was an error with your submission. Please" +
+								" check your form data and try again", "error");
+						}
+
+						return false;
+					}
+			});
+	}
+</script>
+
+<div class="panel panel-default">
+	<div class="panel-body">
+		<form method="POST" action="/task" id="task_form" class="form-horizontal">
+		  <div class="form-group">
+		    <label for="inputname" class="col-sm-2 control-label">Name</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="inputname" name="name" placeholder="name">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="inputdescription" class="col-sm-2 control-label">Description</label>
+		    <div class="col-sm-10">
+		      <textarea class="form-control" id="inputdescription" name="description" placeholder="description"></textarea>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="inputlocation" class="col-sm-2 control-label">Location</label>
+		    <div class="col-sm-10">
+		      <textarea class="form-control" id="inputlocation" name="location" placeholder="location"></textarea>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="starttime" class="col-sm-2 control-label">Start Time</label>
+		    <div class="col-sm-10">
+		      <input type="datetime" class="form-control" id="starttime" name="start_time" placeholder="">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="endtime" class="col-sm-2 control-label">End Time</label>
+		    <div class="col-sm-10">
+		      <input type="datetime" class="form-control" id="endtime" name="end_time" placeholder="">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-sm-offset-2 col-sm-10">
+				<button class='btn btn-default' id="submit_button" onclick='submitForm(); return false;'> Submit the Bitch </button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+</div>
+

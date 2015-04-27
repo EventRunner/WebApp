@@ -50,38 +50,15 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		      <ul class="nav navbar-nav">
-			<li class="dropdown">
+			<li><a href="#" id="profile-link">Your Profile</a></li>
+			<li><a href="#" id="discovery-link">Find An Event</a></li>
+			<!--<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Look At <span class="caret"></span></a>
 			  <ul class="dropdown-menu" role="menu">
-			    <li><a href="#" id="profile-link">Your Profile</a></li>
-			    <li><a href="#" id="discovery-link">Find An Event</a></li>
-			    <li><a href="#">Upcoming Events</a></li>
-			    <li><a href="#">Recent Events</a></li>
+			    <li></li>
+			    
 			  </ul>
-			</li>
-			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Shit To Do <span class="caret"></span></a>
-			  <ul class="dropdown-menu" role="menu">
-			    <li><a href="#">Create Event</a></li>
-			  </ul>
-			</li>
-	        {% if user.permissions %}
-			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin Shit <span class="caret"></span></a>
-			  <ul class="dropdown-menu" role="menu">
-			    <li><a href="/admin">Give Privileges</a></li>			  
-			  </ul>
-			</li>
-	        {% endif %}
-		      </ul>
-		      <ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">What is gucci {{user.name}} <span class="caret"></span></a>
-			  <ul class="dropdown-menu" role="menu">
-			    <li><a href="/logout">Sign Out</a></li>
-			    <li><a href="#">Update Info</a></li>
-			  </ul>
-			</li>
+			</li>-->
 		      </ul>
 		    </div><!-- /.navbar-collapse -->
 		  </div><!-- /.container-fluid -->

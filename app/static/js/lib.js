@@ -28,9 +28,14 @@ function addAlert (message, type)
 /*
  * updates user reference. call after changing user data.
  */
-function loadUser()
+function loadUser(callback)
 {
-	safeGet("/me", function (data) { user = data; });
+	safeGet("/me", function (data) {
+		user = data;
+		if (callback != undefined) {
+			callback();
+		}
+	});
 }
 
 /*
@@ -125,8 +130,31 @@ function goToTask(task_id)
 {
 	changePage("static/js-templates/task.html", { id : task_id });
 }
+function goToVolunteerTask(task_id)
+{
+	changePage("static/js-templates/volunteer-task.html", { id : task_id });
+}
 
 function goToEvent(id)
 {
 	changePage("static/js-templates/event.html", { id : id });
+}
+
+function goToVolunteerEvent(id)
+{
+	changePage("static/js-templates/volunteer.html", { id : id });
+}
+
+function dateToString(date)
+{
+	var day = date.getDay();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+
+	return day + "/" + month + "/" + year;
+}
+
+function bindList(listTarget, searchInput)
+{
+	$("#" + listTarget).btsListFilter("#" + searchInput, {itemChild: 'span'});
 }

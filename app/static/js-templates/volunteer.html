@@ -1,0 +1,117 @@
+<!-- 
+  single event view : renders the data of an event
+  	
+  requires id to be in parameters
+ -->
+
+<!-- tasks panel -->
+<!--
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Tasks <a href="#"> <span style='float:right' onclick="add_task()" class='glyphicon glyphicon-plus'></span></a>
+	</div>
+	 <ul class="list-group" id="task-list">
+ 	</ul>
+</div>
+-->
+
+<!-- schedule panel -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Schedule 
+	</div>
+	<div class="panel-body"> 
+		<div id="schedule-div"></div>
+	</div>
+</div>
+
+<!-- event info -->
+ <div class="panel panel-default">
+ 	<div class="panel-heading" id="event-heading">
+ 		<b id="event-title"></b>
+ 	</div>
+
+ 	<div class="panel-body" id="event-body">
+ 	</div>
+ </div>
+
+
+<script type="text/javascript">
+
+	var event_id;
+	safeGet("/event/" + {{id}}, function (data) {
+		$("#event-title").html(data.name);
+		
+		// store id
+		event_id = data.id;
+
+		// tag with glyphicon if open
+		if (data.is_private) 
+		{
+			$("#event-heading").append("<span style='float:right' class='glyphicon glyphicon-eye-close' aria-hidden='true'></span>" + 
+				"<span style='float:right'> This event is private &nbsp; </span>");
+		} 
+		else 
+		{
+			$("#event-heading").append("<span style='float:right' class='glyphicon glyphicon-eye-open' aria-hidden='true'></span>" + 
+				"<span style='float:right'> This event is public &nbsp; </span>");
+		}
+
+		// handle description
+		if (data.description != undefined && data.description != "")
+		{
+			$("#event-body").html("<p>" + data.description + "</p>");
+		} 
+		else 
+		{
+			$("#event-body").html("<p> No event description... </p>");
+		}
+		// handle time
+		if (data.start_time != undefined && data.start_time != "")
+		{
+			var time = Date(data.start_time);
+			$("#event-body").append("<p><b>Start time: </b>" + strftime('%D %h:%m', time) + "</p>");
+		}
+		// handle time
+		if (data.end_time != undefined && data.end_time != "")
+		{
+			var time = Date(int(data.end_time));
+			$("#event-body").append("<p><b>End time: </b>" + strftime('%D %h:%m', time) + "</p>");
+		}
+		// handle location
+		if (data.location != undefined && data.location != "")
+		{
+			$("#event-body").append("<p><b>Location: </b>" + data.location + "</p>");
+		}
+		
+
+	});
+
+	$.get("/static/js-templates/volunteer-timeline.html", function(template) {
+		try {
+		  var fn = jinja.compile(template).render({id:{{id}}});
+		} catch(e) {
+		  //todo: update error panel
+		  return;
+		}
+		src = fn.toString();
+		$('#schedule-div').html(src);
+		
+		setTimeout(function () {
+			var lowest_schedule_pos = 0;
+			$(".schedule").each(function (si)
+			{
+				var top = $(this).offset().top;
+				var height = $(this).height();
+
+				if (top + height > lowest_schedule_pos)
+				{
+					lowest_schedule_pos = top + height;
+				}
+			});
+			
+			$("#schedule-div").css("height", lowest_schedule_pos - $("#schedule-div").offset().top);
+		}, 100);
+	})
+
+</script>
