@@ -12,30 +12,53 @@
 </form>
 
 <script>
+    function subscribe(id)
+    {
+        var events = user.volunteering_events;
+        events.push(id);
+
+        $.ajax({
+            url: '/user/' + user.id,
+            type: 'PUT',
+            data: {"volunteering_events": JSON.stringify(events)},
+            success: function(result) {
+                if (result.status_code == 0)
+                {
+                    loadUser();
+                    backPage();
+                    addAlert("Successfully added event.", "success");
+                }
+                else
+                {
+                    addAlert("There was an issue with your request..." +
+                        " Please try again.", "error");
+                }
+            }
+        });
+    }
+
 	safeGet("/event", function (data) {
-			var volunteering_events = data["events"];
+        var volunteering_events = data["events"].slice(0, 20);
 
-			// check that we got appropriate data
-			if (volunteering_events != undefined 
-				&& volunteering_events.length > 0)
-			{
+        // check that we got appropriate data
+        if (volunteering_events != undefined
+                && volunteering_events.length > 0) {
 
-				// map to html
-				volunteering_events.map(
-					function (event, index) {
-						// now get details 
-						safeGet("/event/" + event["id"], 
-							function (event_data) {
-								$("#event-list").append("<li class='list-group-item'>" +
-									"<a href='event/" + event_data.id + "'><span>" + event_data.name + "</span></a>"+
-								"</li>");
-						});
-					}
-				);
+            // map to html
+            volunteering_events.map(
+                function (event, index) {
+                    // now get details
+                    safeGet("/event/" + event["id"],
+                            function (event_data) {
+                                $("#event-list").append("<li class='list-group-item'>" + "<a href='#' onclick='goToEvent(" + event_data.id + ")' ><search>" + event_data.name + "</search>" +
+                                        "<a href='#' style='float:right' onclick='subscribe(" +
+                                        event_data.id + ")' > <span class='add' aria-hidden='true'>&plus;</span></a>" + "</li>");
+	                    });
+
+					});
 			}
-		}
-	);
+        });
 
-$('#event-list').btsListFilter('#searchinput', {itemChild: 'span'});
+	$('#event-list').btsListFilter('#searchinput', {itemChild: 'search'});
 </script>
 
