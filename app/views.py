@@ -36,7 +36,7 @@ def profile_id(user_id):
 
 
 def unix_time(dt):
-    epoch = datetime.datetime.utcfromtimestamp(0)
+    epoch = datetime.datetime.fromtimestamp(0)
     delta = dt - epoch
     return delta.total_seconds()
 
@@ -205,6 +205,8 @@ def event(event_id):
         return json_out({"status_code": 0})
 
     elif request.method == "DELETE":
+        if e.manager_id != current_user.id:
+            return json_out({"status_code": 1})
         db.session.delete(e)
         db.session.commit()
         return json_out({"status_code": 0})
@@ -312,7 +314,6 @@ def task(task_id):
                     setattr(t, "end_time", end_time)
                 elif key == "name" or key == "description" or key == "location":
                     setattr(t, key, request.form[key])
-            # TODO qfan: user_list
             elif key == "user_list":
                 try:
                     L = json.loads(request.form[key])
@@ -330,6 +331,8 @@ def task(task_id):
         return json_out({"status_code": 0})
 
     elif request.method == "DELETE":
+        if t.event and t.event.manager_id != current_user.id:
+            return json_out({"status_code": 1})
         db.session.delete(t)
         db.session.commit()
         return json_out({"status_code": 0})
