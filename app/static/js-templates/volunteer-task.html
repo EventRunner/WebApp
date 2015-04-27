@@ -1,0 +1,112 @@
+<!--
+	task view displays the details of a task
+
+	requires the task id to be passed in as 'id'
+-->
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<b id="task-title"> </b>
+	</div>
+	<div class="panel-body">
+		<dl class='dl-horizontal'>
+			<dt>Description</dt>
+			<dd id="description"></dd>
+			<dt>Location</dt>
+			<dd id="location"></dd>
+			<dt>Start</dt>
+			<dd id="from"></dd>
+			<dt>End</dt>
+			<dd id="to"></dd>
+		</dl>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Bitches who gonna do this 
+	</div>
+	<ul class="list-group" id="assigned">
+
+	</ul>
+</div>
+
+<script type="text/javascript">
+
+	function addUser(id)
+	{
+		$.ajax({
+			url : '/task/' + task_id,
+			type : 'PUT',
+			data : task_data.push(id),
+			success:
+				function (e)
+				{
+					if (e.status_code == 0)
+					{
+						refreshUserFilter();
+					} 
+					else 
+					{
+						addAlert("There was an issue with adding this user...", "error");
+					}
+				}
+		});
+	}
+
+	function refreshUserFilter()
+	{
+		$("#possible-user-list").html("");
+
+		// first we ge the event info
+		safeGet("/event/" + task.event_id, function (event) {
+			event.user_list.map(function (user_id, index) {
+			safeGet("/user/" + user_id, function (user_data) {
+				var modifier = user_id in task.user_list ? 
+					"alert-success" : "alert-default";
+
+				$("#possible-user-list").append("<li onclick='addUser(" + user_id + ")' class='list-group-item " + modifier + "'>" +
+					user_data.username +
+					"</li>")
+				});
+			});
+		});
+	}
+
+	var task_id, task;
+	safeGet("/task/" + {{ id }},
+		function (task_data) {
+			// populate page 
+			task_id = task_data.id; 
+			task = task_data;
+
+			$("#task-title").text(task_data.name);
+
+			$("#description").text(task_data.description);
+			$("#location").text(task_data.location);
+
+			var start_time = new Date();
+			start_time.setMilliseconds(start_time);
+
+			var end_time = new Date();
+			start_time.setMilliseconds(end_time);
+
+			$("#from").text(dateToString(start_time));
+			$("#to").text(dateToString(end_time));
+
+			task_data.user_list.map(function (user_id, index) {
+				safeGet("/user/" + user_id, function (user_data) {
+					$("#assigned").append("<li class='list-group-item'>" +
+						user_data.username +
+						"</li>")
+				});
+			});
+
+			// now done with getting data, we will set up our search
+			// box functionality 
+			refreshUserFilter();
+			bindList("possible-user-list", "user-list-filter");
+		}
+	);
+
+</script>

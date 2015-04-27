@@ -205,6 +205,8 @@ def event(event_id):
         return json_out({"status_code": 0})
 
     elif request.method == "DELETE":
+        if e.manager_id != current_user.id:
+            return json_out({"status_code": 1})
         db.session.delete(e)
         db.session.commit()
         return json_out({"status_code": 0})
@@ -329,6 +331,8 @@ def task(task_id):
         return json_out({"status_code": 0})
 
     elif request.method == "DELETE":
+        if t.event and t.event.manager_id != current_user.id:
+            return json_out({"status_code": 1})
         db.session.delete(t)
         db.session.commit()
         return json_out({"status_code": 0})

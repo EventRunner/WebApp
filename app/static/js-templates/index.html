@@ -66,7 +66,7 @@
 				safeGet("/event/" + event_id, 
 					function (event_data) {
 						$("#volunteering-events").append("<li class='list-group-item'>" +
-							"<a onclick='goToEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
+							"<a onclick='goToVolunteerEvent(" + event_data.id + ")'>" +	event_data.name + "</a>"+
 							"<a href='#' style='float:right;' data-href='" + event_data.id + "' data-toggle='modal' data-target='#confirm-delete'> <span aria-hidden='true'>&times;</span></a>" +
 						"</li>");
 				});
