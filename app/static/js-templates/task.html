@@ -54,24 +54,29 @@
 
 	function addUser(id)
 	{
-		$.ajax({
-			url : '/task/' + task_id,
-			type : 'PUT',
-			data : task_data.push(id),
-			success:
-				function (e)
-				{
-					if (e.status_code == 0)
+		safeGet("/task/" + {{ id }},
+		function (task_data) {
+			var n = task_data.user_list;
+			n.push(id);
+			$.ajax({
+				url : '/task/' + task_id,
+				type : 'PUT',
+				data: {"user_list": JSON.stringify(n)},
+				success:
+					function (e)
 					{
-						refreshUserFilter();
-					} 
-					else 
-					{
-						addAlert("There was an issue with adding this user...", "error");
+						if (e.status_code == 0)
+						{
+							refreshUserFilter();
+						} 
+						else 
+						{
+							addAlert("There was an issue with adding this user...", "error");
+						}
 					}
-				}
+			});
 		});
-	}
+	};
 
 	function refreshUserFilter()
 	{
