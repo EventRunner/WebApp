@@ -4,26 +4,6 @@
   requires id to be in parameters
  -->
 
-<!-- tasks panel -->
-<!--
-<div class="panel panel-default">
-	<div class="panel-heading">
-		Tasks <a href="#"> <span style='float:right' onclick="add_task()" class='glyphicon glyphicon-plus'></span></a>
-	</div>
-	 <ul class="list-group" id="task-list">
- 	</ul>
-</div>
--->
-
-<!-- schedule panel -->
-<div class="panel panel-default">
-	<div class="panel-heading">
-		Schedule 
-	</div>
-	<div class="panel-body"> 
-		<div id="schedule-div"></div>
-	</div>
-</div>
 
 <!-- event info -->
  <div class="panel panel-default">
@@ -35,8 +15,38 @@
  	</div>
  </div>
 
+<!-- schedule panel -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Schedule
+	</div>
+	<div class="panel-body"> 
+		<div id="schedule-div"></div>
+	</div>
+</div>
+
+
+<!-- tasks panel -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Tasks
+	</div>
+	 <ul class="list-group" id="task-list">
+ 	</ul>
+</div>
+
+
 
 <script type="text/javascript">
+	function add_task()
+	{
+		changePage('/static/js-templates/task-edit.html', {event_id: event_id, is_modify: false});
+	}
+
+	function edit_event()
+	{
+		changePage("/static/js-templates/event-edit.html", {event_id : event_id, is_modify: true});
+	}
 
 	var event_id;
 	safeGet("/event/" + {{id}}, function (data) {
@@ -69,22 +79,56 @@
 		// handle time
 		if (data.start_time != undefined && data.start_time != "")
 		{
-			var time = Date(data.start_time);
-			$("#event-body").append("<p><b>Start time: </b>" + strftime('%D %h:%m', time) + "</p>");
+			var time = new Date(data.start_time * 1000);
+			$("#event-body").append("<p><b>Start time: </b>" + strftime('%D %H:%M', time) + "</p>");
 		}
 		// handle time
 		if (data.end_time != undefined && data.end_time != "")
 		{
-			var time = Date(int(data.end_time));
-			$("#event-body").append("<p><b>End time: </b>" + strftime('%D %h:%m', time) + "</p>");
+			var time = new Date(data.end_time * 1000);
+			$("#event-body").append("<p><b>End time: </b>" + strftime('%D %H:%M', time) + "</p>");
 		}
-		// handle location
-		if (data.location != undefined && data.location != "")
-		{
-			$("#event-body").append("<p><b>Location: </b>" + data.location + "</p>");
-		}
-		
 
+		// handle when the delete button is pressed
+		$('#confirm-delete').on('show.bs.modal', function(e) {
+		    $(this).find('.btn-ok').off().on('click', function (e) 
+		    {
+		    	$.ajax({
+				    url: '/event/' + data.id,
+				    type: 'DELETE',
+				    success: function(result) {
+				        if (result.status_code == 0)
+				        {
+				        	loadUser();
+				        	backPage();
+				        	addAlert("Successfully deleted event.", "success");
+				        }
+				        else
+				        {
+				        	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
+				        }
+				    },
+				    error: function (result) {
+				    	addAlert("There was an issue with your request..." +
+				        		" Please try again.", "error");
+				    }
+				});
+		    });
+		});
+
+		
+		// tasks
+		data.task_list.map(function (task_id, index) {
+			// get task data
+			safeGet("/task/" + task_id, function (task_data) {
+				// append list item
+				$("#task-list").append("<li class='list-group-item'> " +
+					"<a onclick='goToVolunteerTask(" + task_data.id +")'>" 
+					+ task_data.name +
+					"</a> </li>");
+			});
+		});
 	});
 
 	$.get("/static/js-templates/volunteer-timeline.html", function(template) {
@@ -96,7 +140,7 @@
 		}
 		src = fn.toString();
 		$('#schedule-div').html(src);
-		
+
 		setTimeout(function () {
 			var lowest_schedule_pos = 0;
 			$(".schedule").each(function (si)
@@ -110,8 +154,9 @@
 				}
 			});
 			
-			$("#schedule-div").css("height", lowest_schedule_pos - $("#schedule-div").offset().top);
-		}, 100);
-	})
-
+			$("#schedule-div").css("height", Math.max(lowest_schedule_pos - $("#schedule-div").offset().top + 10, 20));
+		}, 500);
+	});
+	
+	
 </script>

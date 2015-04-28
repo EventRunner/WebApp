@@ -50,7 +50,7 @@
                     // now get details
                     safeGet("/event/" + event["id"],
                             function (event_data) {
-                                $("#event-list").append("<li class='list-group-item'>" + "<a href='#' onclick='goToEvent(" + event_data.id + ")' ><search>" + event_data.name + "</search>" +
+                                $("#event-list").append("<li class='list-group-item'>" + "<a href='#' onclick='subscribe(" + event_data.id + ")' ><search>" + event_data.name + "</search>" +
                                         "<a href='#' style='float:right' onclick='subscribe(" +
                                         event_data.id + ")' > <span class='add' aria-hidden='true'>&plus;</span></a>" + "</li>");
 	                    });

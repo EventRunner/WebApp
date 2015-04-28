@@ -29,8 +29,8 @@
 
 					$("#inputname").val(default_name);
 					$("#inputdescription").val(default_description);
-					$("#starttime").val(strftime('%m/%d/%Y', default_start_time));
-					$("#endtime").val(strftime('%m/%d/%Y', default_end_time));
+					$("#starttime").val(strftime('%D %H:%M', default_start_time));
+					$("#endtime").val(strftime('%D %H:%M', default_end_time));
 					$("#inputlocation").val(default_location);
 					$("#task_form").append("<input type='hidden' name='event_id' value='" + event_id + "'' />");
 				});

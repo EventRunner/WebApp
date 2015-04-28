@@ -104,14 +104,12 @@
 			$("#description").text(task_data.description);
 			$("#location").text(task_data.location);
 
-			var start_time = new Date();
-			start_time.setMilliseconds(start_time);
+			var start_time = new Date(task_data.start_time * 1000);
 
-			var end_time = new Date();
-			start_time.setMilliseconds(end_time);
+			var end_time = new Date(task_data.end_time * 1000);
 
-			$("#from").text(dateToString(start_time));
-			$("#to").text(dateToString(end_time));
+			$("#from").text(strftime("%D %H:%M", start_time));
+			$("#to").text(strftime("%D %H:%M", end_time));
 
 			task_data.user_list.map(function (user_id, index) {
 				safeGet("/user/" + user_id, function (user_data) {
